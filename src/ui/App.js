@@ -1,0 +1,555 @@
+import { createDashboard } from './Dashboard.js';
+import { createPaywallControls } from './PaywallControls.js';
+import { createBypassPanel } from './BypassPanel.js';
+import { createTelemetryViewer } from './TelemetryViewer.js';
+import { createAnalysisPanel } from './AnalysisPanel.js';
+
+/**
+ * Create and mount the main application UI
+ */
+export function createUI(framework) {
+  // Create main container
+  const appContainer = document.createElement('div');
+  appContainer.id = 'paybreak-app';
+  appContainer.innerHTML = `
+    <div class="paybreak-header">
+      <div class="paybreak-logo">
+        <h1>🧩 PayBreak</h1>
+        <span class="subtitle">Paywall Bypass Research Framework</span>
+      </div>
+      <div class="paybreak-status">
+        <span class="status-indicator" id="status-indicator"></span>
+        <span class="status-text" id="status-text">Initializing...</span>
+      </div>
+    </div>
+    
+    <div class="paybreak-main">
+      <div class="paybreak-sidebar">
+        <nav class="paybreak-nav">
+          <button class="nav-item active" data-panel="dashboard">
+            📊 Dashboard
+          </button>
+          <button class="nav-item" data-panel="paywall">
+            🧱 Paywall Simulator
+          </button>
+          <button class="nav-item" data-panel="bypass">
+            🧪 Bypass Engine
+          </button>
+          <button class="nav-item" data-panel="telemetry">
+            📈 Telemetry
+          </button>
+          <button class="nav-item" data-panel="analysis">
+            🔍 Analysis
+          </button>
+        </nav>
+      </div>
+      
+      <div class="paybreak-content">
+        <div id="dashboard-panel" class="panel active"></div>
+        <div id="paywall-panel" class="panel"></div>
+        <div id="bypass-panel" class="panel"></div>
+        <div id="telemetry-panel" class="panel"></div>
+        <div id="analysis-panel" class="panel"></div>
+      </div>
+    </div>
+  `;
+
+  // Add styles
+  addStyles();
+
+  // Mount to page
+  document.body.appendChild(appContainer);
+
+  // Initialize panels
+  initializePanels(framework);
+
+  // Setup navigation
+  setupNavigation();
+
+  // Update status
+  updateStatus(framework);
+
+  // Start status updates
+  setInterval(() => updateStatus(framework), 2000);
+}
+
+/**
+ * Add CSS styles
+ */
+function addStyles() {
+  const style = document.createElement('style');
+  style.textContent = `
+    #paybreak-app {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .paybreak-header {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .paybreak-logo h1 {
+      margin: 0;
+      color: white;
+      font-size: 1.8rem;
+      font-weight: 700;
+    }
+
+    .paybreak-logo .subtitle {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.9rem;
+    }
+
+    .paybreak-status {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .status-indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #ff4757;
+      animation: pulse 2s infinite;
+    }
+
+    .status-indicator.active {
+      background: #2ed573;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+
+    .status-text {
+      color: white;
+      font-weight: 500;
+    }
+
+    .paybreak-main {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    .paybreak-sidebar {
+      width: 250px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-right: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .paybreak-nav {
+      padding: 1rem 0;
+    }
+
+    .nav-item {
+      width: 100%;
+      padding: 1rem 1.5rem;
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.8);
+      text-align: left;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border-left: 3px solid transparent;
+    }
+
+    .nav-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+
+    .nav-item.active {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border-left-color: #2ed573;
+    }
+
+    .paybreak-content {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .panel {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      padding: 2rem;
+      overflow-y: auto;
+      display: none;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .card h2 {
+      margin: 0 0 1rem 0;
+      color: #2c3e50;
+      font-size: 1.4rem;
+      font-weight: 600;
+    }
+
+    .card h3 {
+      margin: 0 0 0.5rem 0;
+      color: #34495e;
+      font-size: 1.1rem;
+      font-weight: 500;
+    }
+
+    .btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin: 0.25rem;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn.secondary {
+      background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+    }
+
+    .btn.danger {
+      background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    }
+
+    .btn.success {
+      background: linear-gradient(135deg, #2ed573 0%, #1e90ff 100%);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .metric {
+      text-align: center;
+      padding: 1rem;
+    }
+
+    .metric-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #667eea;
+      margin-bottom: 0.5rem;
+    }
+
+    .metric-label {
+      color: #7f8c8d;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      text-transform: uppercase;
+    }
+
+    .status-badge.success {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .status-badge.warning {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .status-badge.danger {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .log-entry {
+      background: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 6px;
+      padding: 0.75rem;
+      margin-bottom: 0.5rem;
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 0.85rem;
+    }
+
+    .log-entry.error {
+      background: #f8d7da;
+      border-color: #f5c6cb;
+      color: #721c24;
+    }
+
+    .log-entry.success {
+      background: #d4edda;
+      border-color: #c3e6cb;
+      color: #155724;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #e9ecef;
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 0.5rem 0;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+      transition: width 0.3s ease;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #2c3e50;
+      font-weight: 500;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      transition: border-color 0.3s ease;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+      margin: 0;
+    }
+
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid #e9ecef;
+      margin-bottom: 1rem;
+    }
+
+    .tab {
+      padding: 0.75rem 1.5rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.3s ease;
+    }
+
+    .tab.active {
+      border-bottom-color: #667eea;
+      color: #667eea;
+      font-weight: 500;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .alert {
+      padding: 1rem;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+    }
+
+    .alert.info {
+      background: #d1ecf1;
+      border: 1px solid #bee5eb;
+      color: #0c5460;
+    }
+
+    .alert.success {
+      background: #d4edda;
+      border: 1px solid #c3e6cb;
+      color: #155724;
+    }
+
+    .alert.warning {
+      background: #fff3cd;
+      border: 1px solid #ffeaa7;
+      color: #856404;
+    }
+
+    .alert.danger {
+      background: #f8d7da;
+      border: 1px solid #f5c6cb;
+      color: #721c24;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .tooltip {
+      position: relative;
+      display: inline-block;
+    }
+
+    .tooltip .tooltiptext {
+      visibility: hidden;
+      width: 200px;
+      background-color: #555;
+      color: white;
+      text-align: center;
+      border-radius: 6px;
+      padding: 5px;
+      position: absolute;
+      z-index: 1;
+      bottom: 125%;
+      left: 50%;
+      margin-left: -100px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      font-size: 0.8rem;
+    }
+
+    .tooltip:hover .tooltiptext {
+      visibility: visible;
+      opacity: 1;
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+/**
+ * Initialize all panels
+ */
+function initializePanels(framework) {
+  // Initialize each panel
+  createDashboard(framework, document.getElementById('dashboard-panel'));
+  createPaywallControls(framework, document.getElementById('paywall-panel'));
+  createBypassPanel(framework, document.getElementById('bypass-panel'));
+  createTelemetryViewer(framework, document.getElementById('telemetry-panel'));
+  createAnalysisPanel(framework, document.getElementById('analysis-panel'));
+}
+
+/**
+ * Setup navigation
+ */
+function setupNavigation() {
+  const navItems = document.querySelectorAll('.nav-item');
+  const panels = document.querySelectorAll('.panel');
+
+  navItems.forEach(item => {
+    item.addEventListener('click', () => {
+      const targetPanel = item.getAttribute('data-panel');
+      
+      // Update active nav item
+      navItems.forEach(nav => nav.classList.remove('active'));
+      item.classList.add('active');
+      
+      // Update active panel
+      panels.forEach(panel => panel.classList.remove('active'));
+      document.getElementById(`${targetPanel}-panel`).classList.add('active');
+    });
+  });
+}
+
+/**
+ * Update status display
+ */
+function updateStatus(framework) {
+  const statusIndicator = document.getElementById('status-indicator');
+  const statusText = document.getElementById('status-text');
+  
+  const status = framework.getStatus();
+  
+  if (status.isActive) {
+    statusIndicator.classList.add('active');
+    statusText.textContent = 'Active';
+    
+    if (status.autoFuzzing) {
+      statusText.textContent = 'Auto-fuzzing...';
+    } else if (status.paywallActive) {
+      statusText.textContent = `Testing ${status.paywallType} paywall`;
+    }
+  } else {
+    statusIndicator.classList.remove('active');
+    statusText.textContent = 'Inactive';
+  }
+} 
