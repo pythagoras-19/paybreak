@@ -21,17 +21,14 @@
   "author": "PayBreak Research Team",
   "license": "MIT",
   "devDependencies": {
-    "vite": "^5.0.0",
-    "jest": "^29.7.0",
     "eslint": "^8.55.0",
-    "prettier": "^3.1.0"
+    "jest": "^29.7.0",
+    "prettier": "^3.1.0",
+    "vite": "^5.0.0"
   },
   "dependencies": {
-    "puppeteer": "^21.6.0",
-    "cheerio": "^1.0.0-rc.12",
-    "jsdom": "^23.0.0",
-    "uuid": "^9.0.1",
-    "chart.js": "^4.4.0",
-    "chartjs-adapter-date-fns": "^3.0.0"
+    "chart.js": "^4.5.0",
+    "chartjs-adapter-date-fns": "^3.0.0",
+    "uuid": "^9.0.1"
   }
-} 
+}

@@ -1,5 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 
+let isLoggingTelemetry = false;
+
 /**
  * Telemetry Collector - Captures detailed data about bypass attempts and page state
  */
@@ -210,18 +212,35 @@ export class TelemetryCollector {
    * Capture console log
    */
   captureConsoleLog(level, args) {
+    if (isLoggingTelemetry) return;
+
+    let safeArgs;
+    try {
+      safeArgs = args.map(arg => {
+        if (typeof arg === 'object') {
+          return JSON.stringify(arg, getCircularReplacer(), 2).slice(0, 1000);
+        }
+        return String(arg);
+      });
+    } catch (e) {
+      safeArgs = ['[Unserializable argument]'];
+    }
+
     const log = {
       id: uuidv4(),
       sessionId: this.sessionId,
       level,
-      message: args.map(arg => 
-        typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
-      ).join(' '),
+      message: safeArgs.join(' '),
       timestamp: Date.now()
     };
 
     this.consoleLogs.push(log);
-    this.logTelemetry('console_log', log);
+    isLoggingTelemetry = true;
+    try {
+      this.logTelemetry('console_log', log);
+    } finally {
+      isLoggingTelemetry = false;
+    }
   }
 
   /**
@@ -555,4 +574,16 @@ export class TelemetryCollector {
     
     return csv.join('\n');
   }
+}
+
+// Helper for circular references
+function getCircularReplacer() {
+  const seen = new WeakSet();
+  return (key, value) => {
+    if (typeof value === 'object' && value !== null) {
+      if (seen.has(value)) return '[Circular]';
+      seen.add(value);
+    }
+    return value;
+  };
 } 

@@ -8,6 +8,8 @@ import { createAnalysisPanel } from './AnalysisPanel.js';
  * Create and mount the main application UI
  */
 export function createUI(framework) {
+  console.log('[PayBreak] [UI] Starting UI creation...');
+  
   // Create main container
   const appContainer = document.createElement('div');
   appContainer.id = 'paybreak-app';
@@ -54,23 +56,39 @@ export function createUI(framework) {
     </div>
   `;
 
+  console.log('[PayBreak] [UI] Container HTML created');
+
   // Add styles
+  console.log('[PayBreak] [UI] Adding styles...');
   addStyles();
+  console.log('[PayBreak] [UI] Styles added');
 
   // Mount to page
+  console.log('[PayBreak] [UI] Mounting to page...');
   document.body.appendChild(appContainer);
+  console.log('[PayBreak] [UI] Mounted to page');
 
   // Initialize panels
+  console.log('[PayBreak] [UI] Initializing panels...');
   initializePanels(framework);
+  console.log('[PayBreak] [UI] Panels initialized');
 
   // Setup navigation
+  console.log('[PayBreak] [UI] Setting up navigation...');
   setupNavigation();
+  console.log('[PayBreak] [UI] Navigation setup complete');
 
   // Update status
+  console.log('[PayBreak] [UI] Updating status...');
   updateStatus(framework);
+  console.log('[PayBreak] [UI] Status updated');
 
   // Start status updates
+  console.log('[PayBreak] [UI] Starting status updates...');
   setInterval(() => updateStatus(framework), 2000);
+  console.log('[PayBreak] [UI] Status updates started');
+
+  console.log('[PayBreak] [UI] UI creation complete!');
 }
 
 /**
@@ -500,12 +518,25 @@ function addStyles() {
  * Initialize all panels
  */
 function initializePanels(framework) {
-  // Initialize each panel
+  console.log('[PayBreak] [UI] Initializing Dashboard panel...');
   createDashboard(framework, document.getElementById('dashboard-panel'));
+  console.log('[PayBreak] [UI] Dashboard panel initialized');
+
+  console.log('[PayBreak] [UI] Initializing Paywall Controls panel...');
   createPaywallControls(framework, document.getElementById('paywall-panel'));
+  console.log('[PayBreak] [UI] Paywall Controls panel initialized');
+
+  console.log('[PayBreak] [UI] Initializing Bypass panel...');
   createBypassPanel(framework, document.getElementById('bypass-panel'));
+  console.log('[PayBreak] [UI] Bypass panel initialized');
+
+  console.log('[PayBreak] [UI] Initializing Telemetry Viewer panel...');
   createTelemetryViewer(framework, document.getElementById('telemetry-panel'));
+  console.log('[PayBreak] [UI] Telemetry Viewer panel initialized');
+
+  console.log('[PayBreak] [UI] Initializing Analysis panel...');
   createAnalysisPanel(framework, document.getElementById('analysis-panel'));
+  console.log('[PayBreak] [UI] Analysis panel initialized');
 }
 
 /**
