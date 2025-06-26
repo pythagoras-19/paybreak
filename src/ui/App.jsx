@@ -6,6 +6,7 @@ import { BypassPanel } from './BypassPanel.jsx';
 import { AnalysisPanel } from './AnalysisPanel.jsx';
 import { TelemetryViewer } from './TelemetryViewer.jsx';
 import { Instructions } from './Instructions.jsx';
+import { PaywallExamples } from './PaywallExamples.jsx';
 
 /**
  * Main App Component - Soft Paywall Research Tool
@@ -160,6 +161,12 @@ export function App() {
             🛠️ Bypass Tools
           </button>
           <button 
+            onClick={() => navigateToPage('examples')}
+            className={currentPage === 'examples' ? 'active' : ''}
+          >
+            🌐 Paywall Examples
+          </button>
+          <button 
             onClick={() => navigateToPage('analysis')}
             className={currentPage === 'analysis' ? 'active' : ''}
           >
@@ -231,6 +238,10 @@ export function App() {
             onRunBypassTechnique={handleRunBypassTechnique}
             onRunTestSuite={handleRunTestSuite}
           />
+        )}
+
+        {currentPage === 'examples' && (
+          <PaywallExamples />
         )}
 
         {currentPage === 'analysis' && (
