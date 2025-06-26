@@ -227,6 +227,8 @@ export function App() {
               onApplyPaywall={handleApplyPaywall}
               onResetPaywall={handleResetPaywall}
               isActive={paywallActive}
+              framework={framework}
+              onRunBypassTechnique={handleRunBypassTechnique}
             />
           </div>
         )}
