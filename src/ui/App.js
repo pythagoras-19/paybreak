@@ -103,7 +103,7 @@ function addStyles() {
       left: 0;
       width: 100%;
       height: 100%;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       z-index: 10000;
       display: flex;
@@ -122,7 +122,7 @@ function addStyles() {
 
     .paybreak-logo h1 {
       margin: 0;
-      color: white;
+      color: #fbbf24;
       font-size: 1.8rem;
       font-weight: 700;
     }
@@ -142,12 +142,12 @@ function addStyles() {
       width: 12px;
       height: 12px;
       border-radius: 50%;
-      background: #ff4757;
+      background: #dc2626;
       animation: pulse 2s infinite;
     }
 
     .status-indicator.active {
-      background: #2ed573;
+      background: #fbbf24;
     }
 
     @keyframes pulse {
@@ -192,14 +192,14 @@ function addStyles() {
     }
 
     .nav-item:hover {
-      background: rgba(255, 255, 255, 0.1);
-      color: white;
+      background: rgba(251, 191, 36, 0.1);
+      color: #fbbf24;
     }
 
     .nav-item.active {
-      background: rgba(255, 255, 255, 0.2);
-      color: white;
-      border-left-color: #2ed573;
+      background: rgba(251, 191, 36, 0.2);
+      color: #fbbf24;
+      border-left-color: #fbbf24;
     }
 
     .paybreak-content {
@@ -236,20 +236,20 @@ function addStyles() {
 
     .card h2 {
       margin: 0 0 1rem 0;
-      color: #2c3e50;
+      color: #1e3a8a;
       font-size: 1.4rem;
       font-weight: 600;
     }
 
     .card h3 {
       margin: 0 0 0.5rem 0;
-      color: #34495e;
+      color: #1e40af;
       font-size: 1.1rem;
       font-weight: 500;
     }
 
     .btn {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
       color: white;
       border: none;
       padding: 0.75rem 1.5rem;
@@ -263,7 +263,7 @@ function addStyles() {
 
     .btn:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+      box-shadow: 0 4px 15px rgba(30, 58, 138, 0.4);
     }
 
     .btn:active {
@@ -271,15 +271,17 @@ function addStyles() {
     }
 
     .btn.secondary {
-      background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: #1e3a8a;
     }
 
     .btn.danger {
-      background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
     }
 
     .btn.success {
-      background: linear-gradient(135deg, #2ed573 0%, #1e90ff 100%);
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: #1e3a8a;
     }
 
     .btn:disabled {
@@ -302,12 +304,12 @@ function addStyles() {
     .metric-value {
       font-size: 2rem;
       font-weight: 700;
-      color: #667eea;
+      color: #1e3a8a;
       margin-bottom: 0.5rem;
     }
 
     .metric-label {
-      color: #7f8c8d;
+      color: #6b7280;
       font-size: 0.9rem;
       font-weight: 500;
     }
@@ -322,18 +324,18 @@ function addStyles() {
     }
 
     .status-badge.success {
-      background: #d4edda;
-      color: #155724;
+      background: #fef3c7;
+      color: #92400e;
     }
 
     .status-badge.warning {
-      background: #fff3cd;
-      color: #856404;
+      background: #fef3c7;
+      color: #92400e;
     }
 
     .status-badge.danger {
-      background: #f8d7da;
-      color: #721c24;
+      background: #fee2e2;
+      color: #991b1b;
     }
 
     .log-entry {
@@ -347,15 +349,15 @@ function addStyles() {
     }
 
     .log-entry.error {
-      background: #f8d7da;
-      border-color: #f5c6cb;
-      color: #721c24;
+      background: #fee2e2;
+      border-color: #fecaca;
+      color: #991b1b;
     }
 
     .log-entry.success {
-      background: #d4edda;
-      border-color: #c3e6cb;
-      color: #155724;
+      background: #fef3c7;
+      border-color: #fed7aa;
+      color: #92400e;
     }
 
     .progress-bar {
@@ -369,7 +371,7 @@ function addStyles() {
 
     .progress-fill {
       height: 100%;
-      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(90deg, #1e3a8a 0%, #fbbf24 100%);
       transition: width 0.3s ease;
     }
 
@@ -380,7 +382,7 @@ function addStyles() {
     .form-group label {
       display: block;
       margin-bottom: 0.5rem;
-      color: #2c3e50;
+      color: #1e3a8a;
       font-weight: 500;
     }
 
@@ -395,8 +397,8 @@ function addStyles() {
 
     .form-control:focus {
       outline: none;
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      border-color: #1e3a8a;
+      box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
     }
 
     .checkbox-group {
