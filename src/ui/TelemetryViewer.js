@@ -36,9 +36,89 @@ export function createTelemetryViewer(framework, container) {
         <button class="btn" id="export-telemetry">📤 Export Telemetry</button>
         <button class="btn secondary" id="clear-telemetry">🗑️ Clear Data</button>
         <button class="btn" id="refresh-telemetry">🔄 Refresh</button>
+        <button class="btn" id="generate-report">📊 Generate Report</button>
         <div class="checkbox-group">
           <input type="checkbox" id="auto-refresh" checked>
           <label for="auto-refresh">Auto-refresh (5s)</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>⚙️ Logging Configuration</h3>
+      <div class="grid">
+        <div class="form-group">
+          <label for="log-level">Log Level:</label>
+          <select id="log-level" class="form-control">
+            <option value="debug">Debug (All events)</option>
+            <option value="info">Info (Important events)</option>
+            <option value="warn">Warning (Warnings & errors)</option>
+            <option value="error">Error (Errors only)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="max-entries">Max Log Entries:</label>
+          <input type="number" id="max-entries" class="form-control" value="10000" min="1000" max="50000">
+        </div>
+      </div>
+      
+      <div class="grid">
+        <div class="form-group">
+          <h4>📡 Tracking Features</h4>
+          <div class="checkbox-group">
+            <input type="checkbox" id="track-network" checked>
+            <label for="track-network">Network Requests</label>
+          </div>
+          <div class="checkbox-group">
+            <input type="checkbox" id="track-console" checked>
+            <label for="track-console">Console Logs</label>
+          </div>
+          <div class="checkbox-group">
+            <input type="checkbox" id="track-dom" checked>
+            <label for="track-dom">DOM Mutations</label>
+          </div>
+          <div class="checkbox-group">
+            <input type="checkbox" id="track-performance" checked>
+            <label for="track-performance">Performance Metrics</label>
+          </div>
+          <div class="checkbox-group">
+            <input type="checkbox" id="track-interactions" checked>
+            <label for="track-interactions">User Interactions</label>
+          </div>
+          <div class="checkbox-group">
+            <input type="checkbox" id="track-errors" checked>
+            <label for="track-errors">Error Tracking</label>
+          </div>
+          <div class="checkbox-group">
+            <input type="checkbox" id="track-memory" checked>
+            <label for="track-memory">Memory Usage</label>
+          </div>
+          <div class="checkbox-group">
+            <input type="checkbox" id="track-storage" checked>
+            <label for="track-storage">Storage Changes</label>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <h4>📊 Analytics</h4>
+          <div class="analytics-grid">
+            <div class="analytics-item">
+              <span class="analytics-label">Error Rate:</span>
+              <span class="analytics-value" id="error-rate">0%</span>
+            </div>
+            <div class="analytics-item">
+              <span class="analytics-label">Avg Response Time:</span>
+              <span class="analytics-value" id="avg-response-time">0ms</span>
+            </div>
+            <div class="analytics-item">
+              <span class="analytics-label">Memory Usage:</span>
+              <span class="analytics-value" id="memory-usage">0MB</span>
+            </div>
+            <div class="analytics-item">
+              <span class="analytics-label">User Interactions:</span>
+              <span class="analytics-value" id="user-interactions">0</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -52,6 +132,8 @@ export function createTelemetryViewer(framework, container) {
         <button class="tab" data-tab="console-logs">Console Logs</button>
         <button class="tab" data-tab="dom-mutations">DOM Mutations</button>
         <button class="tab" data-tab="performance">Performance</button>
+        <button class="tab" data-tab="user-interactions">User Interactions</button>
+        <button class="tab" data-tab="errors">Errors</button>
       </div>
 
       <div class="tab-content active" id="all-events">
@@ -89,6 +171,18 @@ export function createTelemetryViewer(framework, container) {
           <p class="log-entry">No performance data yet</p>
         </div>
       </div>
+
+      <div class="tab-content" id="user-interactions">
+        <div id="interactions-stream" class="telemetry-stream">
+          <p class="log-entry">No user interactions yet</p>
+        </div>
+      </div>
+
+      <div class="tab-content" id="errors">
+        <div id="errors-stream" class="telemetry-stream">
+          <p class="log-entry">No errors yet</p>
+        </div>
+      </div>
     </div>
 
     <div class="grid">
@@ -110,6 +204,8 @@ export function createTelemetryViewer(framework, container) {
             <option value="console_log">Console Logs</option>
             <option value="dom_mutation">DOM Mutations</option>
             <option value="performance_metric">Performance</option>
+            <option value="user_interaction">User Interactions</option>
+            <option value="error">Errors</option>
           </select>
         </div>
         <div class="form-group">
@@ -132,6 +228,13 @@ export function createTelemetryViewer(framework, container) {
       <h3>📊 Detailed Statistics</h3>
       <div id="telemetry-stats">
         <p>Statistics will appear here</p>
+      </div>
+    </div>
+
+    <div class="card" id="recommendations-card" style="display: none;">
+      <h3>💡 Recommendations</h3>
+      <div id="recommendations-list">
+        <!-- Recommendations will be populated here -->
       </div>
     </div>
   `;
@@ -196,71 +299,132 @@ function addTelemetryStyles() {
       border-left: 4px solid #6f42c1;
     }
 
+    .telemetry-entry.user_interaction {
+      border-left: 4px solid #fd7e14;
+    }
+
+    .telemetry-entry.error {
+      border-left: 4px solid #e83e8c;
+      background: #fff5f5;
+    }
+
     .telemetry-timestamp {
       color: #6c757d;
       font-size: 0.8rem;
-      font-weight: 500;
+      margin-bottom: 0.25rem;
     }
 
     .telemetry-event {
-      color: #2c3e50;
-      font-weight: 600;
+      font-weight: bold;
+      color: #495057;
       margin-bottom: 0.25rem;
     }
 
     .telemetry-data {
-      color: #495057;
+      background: #f8f9fa;
+      padding: 0.5rem;
+      border-radius: 3px;
       font-size: 0.8rem;
       white-space: pre-wrap;
       word-break: break-word;
     }
 
-    .stats-grid {
+    .analytics-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      grid-template-columns: 1fr 1fr;
       gap: 1rem;
     }
 
-    .stat-item {
+    .analytics-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem;
       background: #f8f9fa;
+      border-radius: 4px;
       border: 1px solid #e9ecef;
-      border-radius: 6px;
-      padding: 1rem;
-      text-align: center;
     }
 
-    .stat-value {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #667eea;
+    .analytics-label {
+      font-weight: 500;
+      color: #495057;
+    }
+
+    .analytics-value {
+      font-weight: bold;
+      color: #1e3a8a;
+    }
+
+    .recommendation {
+      padding: 1rem;
+      margin-bottom: 0.5rem;
+      border-radius: 6px;
+      border-left: 4px solid;
+    }
+
+    .recommendation.warning {
+      background: #fff3cd;
+      border-color: #ffc107;
+      color: #856404;
+    }
+
+    .recommendation.error {
+      background: #f8d7da;
+      border-color: #dc3545;
+      color: #721c24;
+    }
+
+    .recommendation.info {
+      background: #d1ecf1;
+      border-color: #17a2b8;
+      color: #0c5460;
+    }
+
+    .recommendation.success {
+      background: #d4edda;
+      border-color: #28a745;
+      color: #155724;
+    }
+
+    .recommendation-priority {
+      font-size: 0.8rem;
+      font-weight: bold;
+      text-transform: uppercase;
       margin-bottom: 0.25rem;
     }
 
-    .stat-label {
-      color: #6c757d;
-      font-size: 0.9rem;
-      font-weight: 500;
+    .log-level-indicator {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 0.5rem;
     }
 
-    .event-breakdown {
-      margin-top: 1rem;
-    }
+    .log-level-debug { background: #6c757d; }
+    .log-level-info { background: #17a2b8; }
+    .log-level-warn { background: #ffc107; }
+    .log-level-error { background: #dc3545; }
 
-    .event-item {
+    .checkbox-group {
       display: flex;
-      justify-content: space-between;
-      padding: 0.5rem;
-      border-bottom: 1px solid #e9ecef;
+      align-items: center;
+      margin-bottom: 0.5rem;
     }
 
-    .event-name {
-      font-weight: 500;
-      color: #2c3e50;
+    .checkbox-group input[type="checkbox"] {
+      margin-right: 0.5rem;
     }
 
-    .event-count {
-      font-weight: 600;
-      color: #667eea;
+    .checkbox-group label {
+      font-size: 0.9rem;
+      color: #495057;
+    }
+
+    .form-group h4 {
+      margin-bottom: 0.75rem;
+      color: #1e3a8a;
+      font-size: 1rem;
     }
   `;
   document.head.appendChild(style);
@@ -285,14 +449,62 @@ function setupTelemetryEvents(framework, container) {
   // Clear telemetry
   container.querySelector('#clear-telemetry').addEventListener('click', () => {
     if (confirm('Are you sure you want to clear all telemetry data?')) {
-      // Note: This would need to be implemented in the framework
-      console.log('Clear telemetry functionality would be implemented here');
+      framework.telemetryCollector.clearData();
+      updateTelemetryData(framework);
     }
   });
 
   // Refresh telemetry
   container.querySelector('#refresh-telemetry').addEventListener('click', () => {
     updateTelemetryData(framework);
+  });
+
+  // Generate report
+  container.querySelector('#generate-report').addEventListener('click', () => {
+    const report = framework.telemetryCollector.generateEnhancedReport();
+    const reportBlob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(reportBlob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `paybreak-report-${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    
+    // Show recommendations
+    showRecommendations(report.recommendations);
+  });
+
+  // Log level configuration
+  container.querySelector('#log-level').addEventListener('change', (e) => {
+    framework.telemetryCollector.setLogLevel(e.target.value);
+  });
+
+  // Max entries configuration
+  container.querySelector('#max-entries').addEventListener('change', (e) => {
+    framework.telemetryCollector.maxLogEntries = parseInt(e.target.value);
+  });
+
+  // Tracking feature toggles
+  const trackingToggles = [
+    'track-network', 'track-console', 'track-dom', 'track-performance',
+    'track-interactions', 'track-errors', 'track-memory', 'track-storage'
+  ];
+
+  trackingToggles.forEach(toggleId => {
+    container.querySelector(`#${toggleId}`).addEventListener('change', (e) => {
+      const isEnabled = e.target.checked;
+      const feature = toggleId.replace('track-', '');
+      
+      // This would need to be implemented in the framework to actually enable/disable tracking
+      console.log(`${feature} tracking ${isEnabled ? 'enabled' : 'disabled'}`);
+      
+      // For now, just log the change
+      framework.telemetryCollector.logTelemetry('tracking_config_changed', {
+        feature,
+        enabled: isEnabled,
+        timestamp: Date.now()
+      });
+    });
   });
 
   // Auto-refresh toggle
@@ -315,6 +527,28 @@ function setupTelemetryEvents(framework, container) {
   container.querySelector('#time-range').addEventListener('change', (e) => {
     filterByTimeRange(e.target.value);
   });
+}
+
+/**
+ * Show recommendations
+ */
+function showRecommendations(recommendations) {
+  const recommendationsCard = document.getElementById('recommendations-card');
+  const recommendationsList = document.getElementById('recommendations-list');
+  
+  if (recommendations.length === 0) {
+    recommendationsCard.style.display = 'none';
+    return;
+  }
+  
+  recommendationsList.innerHTML = recommendations.map(rec => `
+    <div class="recommendation ${rec.type}">
+      <div class="recommendation-priority">${rec.priority.toUpperCase()}</div>
+      <div>${rec.message}</div>
+    </div>
+  `).join('');
+  
+  recommendationsCard.style.display = 'block';
 }
 
 /**
@@ -347,12 +581,18 @@ function updateTelemetryData(framework) {
   const networkRequests = framework.telemetryCollector.getNetworkRequests();
   const consoleLogs = framework.telemetryCollector.getConsoleLogs();
   const domChanges = framework.telemetryCollector.getDOMChanges();
+  const userInteractions = framework.telemetryCollector.getUserInteractions();
+  const errors = framework.telemetryCollector.getErrors();
+  const memoryUsage = framework.telemetryCollector.getMemoryUsage();
 
   // Update overview metrics
   document.getElementById('total-telemetry').textContent = telemetryData.length;
   document.getElementById('network-requests').textContent = networkRequests.length;
   document.getElementById('console-logs').textContent = consoleLogs.length;
   document.getElementById('dom-changes').textContent = domChanges.length;
+
+  // Update analytics
+  updateAnalytics(framework);
 
   // Update streams
   updateTelemetryStream(telemetryData);
@@ -361,9 +601,94 @@ function updateTelemetryData(framework) {
   updateConsoleStream(consoleLogs);
   updateDOMStream(domChanges);
   updatePerformanceStream(framework.telemetryCollector.getPerformanceMetrics());
+  updateUserInteractionsStream(userInteractions);
+  updateErrorsStream(errors);
 
   // Update statistics
   updateTelemetryStats(telemetryData);
+}
+
+/**
+ * Update analytics metrics
+ */
+function updateAnalytics(framework) {
+  const telemetryCollector = framework.telemetryCollector;
+  
+  // Error rate
+  const errorRate = telemetryCollector.calculateErrorRate();
+  document.getElementById('error-rate').textContent = `${errorRate.toFixed(1)}%`;
+  
+  // Average response time
+  const avgResponseTime = telemetryCollector.calculateAverageResponseTime();
+  document.getElementById('avg-response-time').textContent = `${Math.round(avgResponseTime)}ms`;
+  
+  // Memory usage
+  const avgMemory = telemetryCollector.calculateAverageMemoryUsage();
+  const memoryMB = (avgMemory / (1024 * 1024)).toFixed(1);
+  document.getElementById('memory-usage').textContent = `${memoryMB}MB`;
+  
+  // User interactions
+  const userInteractions = telemetryCollector.getUserInteractions();
+  document.getElementById('user-interactions').textContent = userInteractions.length;
+}
+
+/**
+ * Update user interactions stream
+ */
+function updateUserInteractionsStream(data) {
+  const container = document.getElementById('interactions-stream');
+  
+  if (data.length === 0) {
+    container.innerHTML = '<p class="log-entry">No user interactions yet</p>';
+    return;
+  }
+
+  const noData = container.querySelector('.log-entry');
+  if (noData && noData.textContent === 'No user interactions yet') {
+    noData.remove();
+  }
+
+  const recentData = data.slice(-20).reverse();
+  const html = recentData.map(interaction => `
+    <div class="telemetry-entry user_interaction">
+      <div class="telemetry-timestamp">${new Date(interaction.timestamp).toLocaleTimeString()}</div>
+      <div class="telemetry-event">${interaction.type}</div>
+      <div class="telemetry-data">Target: ${interaction.target}</div>
+    </div>
+  `).join('');
+  
+  container.innerHTML = html;
+}
+
+/**
+ * Update errors stream
+ */
+function updateErrorsStream(data) {
+  const container = document.getElementById('errors-stream');
+  
+  if (data.length === 0) {
+    container.innerHTML = '<p class="log-entry">No errors yet</p>';
+    return;
+  }
+
+  const noData = container.querySelector('.log-entry');
+  if (noData && noData.textContent === 'No errors yet') {
+    noData.remove();
+  }
+
+  const recentData = data.slice(-20).reverse();
+  const html = recentData.map(error => `
+    <div class="telemetry-entry error">
+      <div class="telemetry-timestamp">${new Date(error.timestamp).toLocaleTimeString()}</div>
+      <div class="telemetry-event">${error.type}</div>
+      <div class="telemetry-data">
+        Error: ${error.error}
+        ${error.stack ? `<br>Stack: ${error.stack.substring(0, 200)}...` : ''}
+      </div>
+    </div>
+  `).join('');
+  
+  container.innerHTML = html;
 }
 
 /**

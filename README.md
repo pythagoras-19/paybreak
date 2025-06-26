@@ -346,6 +346,185 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [ ] Mobile app version
 - [ ] API for external integrations
 
+## 🔍 Enhanced Logging System
+
+PayBreak now includes a comprehensive, in-depth logging system that captures detailed information about all framework activities, user interactions, and system performance.
+
+### 📊 Logging Features
+
+#### **Real-Time Data Collection**
+- **Network Requests**: Detailed tracking of all fetch/XHR requests with timing, status, and response data
+- **Console Logs**: Complete console output capture with stack traces for errors
+- **DOM Mutations**: Real-time monitoring of DOM changes and element modifications
+- **User Interactions**: Tracking of clicks, inputs, scrolls, and other user actions
+- **Performance Metrics**: Memory usage, response times, and performance indicators
+- **Error Tracking**: Global error handling and unhandled promise rejection capture
+- **Storage Monitoring**: localStorage and sessionStorage change tracking
+
+#### **Configurable Logging Levels**
+- **Debug**: All events (most verbose)
+- **Info**: Important events and status changes
+- **Warn**: Warnings and potential issues
+- **Error**: Errors only (least verbose)
+
+#### **Advanced Analytics**
+- **Error Rate Calculation**: Automatic calculation of network request failure rates
+- **Performance Analysis**: Average response times and memory usage tracking
+- **User Behavior Insights**: Most common interactions and interaction timelines
+- **Bypass Success Analysis**: Detailed statistics on bypass technique effectiveness
+
+### 🎛️ Logging Controls
+
+#### **Dashboard Controls**
+- Quick log level switching (Debug/Info/Warn/Error)
+- Real-time logging status display
+- Memory usage monitoring
+- Error count tracking
+- One-click log clearing and report generation
+
+#### **Telemetry Viewer**
+- **Comprehensive Configuration Panel**:
+  - Log level selection
+  - Maximum log entries limit
+  - Individual tracking feature toggles
+  - Real-time analytics display
+
+- **Multi-Tab Data Viewing**:
+  - All Events (comprehensive view)
+  - Bypass Attempts (success/failure tracking)
+  - Network Activity (request/response details)
+  - Console Logs (with stack traces)
+  - DOM Mutations (element changes)
+  - Performance Metrics (timing data)
+  - User Interactions (click/input tracking)
+  - Errors (detailed error information)
+
+- **Advanced Filtering**:
+  - Event type filtering
+  - Time range selection
+  - Search functionality
+  - Real-time data filtering
+
+### 📈 Enhanced Reporting
+
+#### **Automated Report Generation**
+```javascript
+// Generate comprehensive report
+const report = framework.telemetryCollector.generateEnhancedReport();
+
+// Report includes:
+// - Session duration and statistics
+// - Performance metrics and recommendations
+// - User behavior analysis
+// - Error analysis and common issues
+// - Bypass attempt success rates
+// - Memory usage patterns
+```
+
+#### **Smart Recommendations**
+The system automatically analyzes collected data and provides recommendations:
+- **High Error Rates**: Alerts when network request failure rates exceed thresholds
+- **Memory Issues**: Warnings about excessive memory usage
+- **Performance Problems**: Suggestions for slow network requests
+- **Successful Bypasses**: Highlights effective bypass techniques
+
+### 🔧 Usage Examples
+
+#### **Basic Logging Setup**
+```javascript
+// Access the telemetry collector
+const telemetry = framework.telemetryCollector;
+
+// Set log level
+telemetry.setLogLevel('debug');
+
+// Clear logs
+telemetry.clearData();
+
+// Export data
+const data = telemetry.exportData('json');
+```
+
+#### **Advanced Filtering**
+```javascript
+// Get filtered telemetry data
+const filteredData = telemetry.getTelemetryData({
+  event: 'bypass_attempt',
+  startTime: Date.now() - 3600000, // Last hour
+  sessionId: 'specific-session-id'
+});
+```
+
+#### **Real-Time Monitoring**
+```javascript
+// Monitor specific metrics
+const errorRate = telemetry.calculateErrorRate();
+const avgResponseTime = telemetry.calculateAverageResponseTime();
+const memoryUsage = telemetry.calculateAverageMemoryUsage();
+
+// Get user interaction patterns
+const interactions = telemetry.getMostCommonInteractions();
+```
+
+### 🎯 Logging Best Practices
+
+#### **For Development**
+1. **Use Debug Level**: Set log level to 'debug' during development for maximum visibility
+2. **Monitor Console**: Watch the browser console for real-time logging output
+3. **Export Regularly**: Export telemetry data periodically for analysis
+4. **Track User Actions**: Enable user interaction tracking to understand usage patterns
+
+#### **For Production Testing**
+1. **Use Info Level**: Set log level to 'info' for production-like testing
+2. **Monitor Performance**: Watch memory usage and response times
+3. **Analyze Errors**: Review error logs to identify issues
+4. **Generate Reports**: Use automated reporting for comprehensive analysis
+
+#### **For Research**
+1. **Enable All Tracking**: Turn on all tracking features for complete data collection
+2. **Export Raw Data**: Export telemetry data for external analysis
+3. **Use Filtering**: Use advanced filtering to focus on specific events
+4. **Review Recommendations**: Pay attention to automated recommendations
+
+### 📊 Data Export Formats
+
+#### **JSON Export**
+```javascript
+// Export all telemetry data as JSON
+const jsonData = telemetry.exportData('json');
+```
+
+#### **CSV Export**
+```javascript
+// Export specific data types as CSV
+const csvData = telemetry.exportData('csv');
+```
+
+#### **Enhanced Report**
+```javascript
+// Generate comprehensive analysis report
+const report = telemetry.generateEnhancedReport();
+```
+
+### 🔍 Troubleshooting
+
+#### **High Memory Usage**
+- Reduce maximum log entries limit
+- Clear logs periodically
+- Use higher log levels to reduce verbosity
+
+#### **Performance Issues**
+- Disable unnecessary tracking features
+- Use time-based filtering to focus on recent events
+- Monitor error rates and response times
+
+#### **Missing Data**
+- Check log level settings
+- Verify tracking features are enabled
+- Ensure framework is properly initialized
+
+This enhanced logging system provides unprecedented visibility into PayBreak's operations, making it an invaluable tool for security research, debugging, and performance analysis.
+
 ---
 
 **🧩 PayBreak** - Unlocking the secrets of paywall security through research and innovation. 

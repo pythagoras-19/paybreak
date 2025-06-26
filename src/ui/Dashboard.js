@@ -67,6 +67,58 @@ export function createDashboard(framework, container) {
       </div>
     </div>
 
+    <div class="grid">
+      <div class="card">
+        <h3>📊 Logging Status</h3>
+        <div class="grid">
+          <div class="metric">
+            <div class="metric-value" id="log-level-indicator">Debug</div>
+            <div class="metric-label">Log Level</div>
+          </div>
+          <div class="metric">
+            <div class="metric-value" id="total-log-entries">0</div>
+            <div class="metric-label">Log Entries</div>
+          </div>
+          <div class="metric">
+            <div class="metric-value" id="error-count">0</div>
+            <div class="metric-label">Errors</div>
+          </div>
+          <div class="metric">
+            <div class="metric-value" id="memory-usage-dashboard">0MB</div>
+            <div class="metric-label">Memory</div>
+          </div>
+        </div>
+        <div style="margin-top: 1rem;">
+          <button class="btn" onclick="window.paybreak.telemetryCollector.setLogLevel('debug')">Debug</button>
+          <button class="btn" onclick="window.paybreak.telemetryCollector.setLogLevel('info')">Info</button>
+          <button class="btn" onclick="window.paybreak.telemetryCollector.setLogLevel('warn')">Warn</button>
+          <button class="btn" onclick="window.paybreak.telemetryCollector.setLogLevel('error')">Error</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>🔧 Quick Logging Controls</h3>
+        <div class="checkbox-group">
+          <input type="checkbox" id="dashboard-track-network" checked>
+          <label for="dashboard-track-network">Network Tracking</label>
+        </div>
+        <div class="checkbox-group">
+          <input type="checkbox" id="dashboard-track-console" checked>
+          <label for="dashboard-track-console">Console Tracking</label>
+        </div>
+        <div class="checkbox-group">
+          <input type="checkbox" id="dashboard-track-dom" checked>
+          <label for="dashboard-track-dom">DOM Tracking</label>
+        </div>
+        <div class="checkbox-group">
+          <input type="checkbox" id="dashboard-track-interactions" checked>
+          <label for="dashboard-track-interactions">User Interactions</label>
+        </div>
+        <button class="btn secondary" onclick="window.paybreak.telemetryCollector.clearData()">Clear Logs</button>
+        <button class="btn" onclick="window.paybreak.telemetryCollector.generateEnhancedReport()">Generate Report</button>
+      </div>
+    </div>
+
     <div class="card">
       <h3>🎯 Paywall Types Available</h3>
       <div class="grid">
@@ -96,6 +148,7 @@ export function createDashboard(framework, container) {
 
   // Setup event listeners
   setupDashboardEvents(framework, container);
+  setupDashboardLoggingControls(framework, container);
 
   // Start metrics updates
   updateMetrics(framework);
@@ -202,6 +255,7 @@ function setupDashboardEvents(framework, container) {
 function updateMetrics(framework) {
   const status = framework.getStatus();
   const bypassReport = framework.getBypassReport();
+  const telemetryCollector = framework.telemetryCollector;
 
   // Update metric values
   document.getElementById('bypass-attempts').textContent = status.bypassAttempts;
@@ -209,11 +263,45 @@ function updateMetrics(framework) {
   document.getElementById('success-rate').textContent = `${bypassReport.successRate.toFixed(1)}%`;
   document.getElementById('telemetry-records').textContent = status.telemetryRecords;
 
+  // Update logging status
+  document.getElementById('log-level-indicator').textContent = telemetryCollector.logLevel;
+  document.getElementById('total-log-entries').textContent = telemetryCollector.telemetryData.length;
+  document.getElementById('error-count').textContent = telemetryCollector.errors.length;
+  
+  const avgMemory = telemetryCollector.calculateAverageMemoryUsage();
+  const memoryMB = (avgMemory / (1024 * 1024)).toFixed(1);
+  document.getElementById('memory-usage-dashboard').textContent = `${memoryMB}MB`;
+
   // Update status
   document.getElementById('framework-status').textContent = status.isActive ? 'Active' : 'Inactive';
   document.getElementById('session-status').textContent = status.currentSession ? 'Active' : 'Not started';
   document.getElementById('paywall-status').textContent = status.paywallActive ? status.paywallType : 'None active';
   document.getElementById('fuzzing-status').textContent = status.autoFuzzing ? 'Active' : 'Inactive';
+}
+
+/**
+ * Setup dashboard logging controls
+ */
+function setupDashboardLoggingControls(framework, container) {
+  // Dashboard tracking toggles
+  const dashboardToggles = [
+    'dashboard-track-network', 'dashboard-track-console', 
+    'dashboard-track-dom', 'dashboard-track-interactions'
+  ];
+
+  dashboardToggles.forEach(toggleId => {
+    container.querySelector(`#${toggleId}`).addEventListener('change', (e) => {
+      const isEnabled = e.target.checked;
+      const feature = toggleId.replace('dashboard-track-', '');
+      
+      // Log the configuration change
+      framework.telemetryCollector.logTelemetry('dashboard_tracking_changed', {
+        feature,
+        enabled: isEnabled,
+        timestamp: Date.now()
+      });
+    });
+  });
 }
 
 /**
