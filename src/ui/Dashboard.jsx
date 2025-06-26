@@ -39,7 +39,10 @@ export function Dashboard({ framework, sessionData, paywallActive, onRunTestSuit
   return (
     <div className="dashboard">
       <div className="dashboard-header">
-        <h2>🏠 Dashboard - Soft Paywall Research</h2>
+        <h2>
+          <img src="/favicon.svg" alt="PayBreak Shield" className="title-icon" />
+          Dashboard - Soft Paywall Research
+        </h2>
         <p>Monitor and control your soft paywall security testing session</p>
       </div>
 

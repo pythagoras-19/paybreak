@@ -134,7 +134,10 @@ export function App() {
     <div className="app">
       <header className="app-header">
         <div className="header-content">
-          <h1>🔒 PayBreak</h1>
+          <h1>
+            <img src="/favicon.svg" alt="PayBreak Shield" className="title-icon" />
+            PayBreak
+          </h1>
           <p>Soft Paywall Security Research Framework</p>
         </div>
         <nav className="app-nav">
@@ -251,7 +254,11 @@ export function App() {
 
       <footer className="app-footer">
         <div className="footer-content">
-          <p>&copy; 2025 Matt Christiansen. PayBreak - Soft Paywall Security Research Framework</p>
+          <div className="footer-brand">
+            <img src="/favicon.svg" alt="PayBreak Shield" className="footer-icon" />
+            <span>PayBreak</span>
+          </div>
+          <p>&copy; 2025 Matt Christiansen. Soft Paywall Security Research Framework</p>
         </div>
       </footer>
     </div>
