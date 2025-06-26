@@ -27,6 +27,15 @@ export function PaywallControls({ onApplyPaywall, onResetPaywall, isActive }) {
     <div className="paywall-controls">
       <h3>🔒 Soft Paywall Controls</h3>
       
+      <div className="paywall-status">
+        <div className={`status-indicator ${isActive ? 'active' : 'inactive'}`}>
+          <span className="status-dot"></span>
+          <span className="status-text">
+            {isActive ? 'Paywall Active' : 'Paywall Inactive'}
+          </span>
+        </div>
+      </div>
+      
       <div className="control-group">
         <label>
           Blur Intensity: {config.blurIntensity}px
@@ -91,6 +100,17 @@ export function PaywallControls({ onApplyPaywall, onResetPaywall, isActive }) {
           className="btn-secondary"
         >
           Reset Paywall
+        </button>
+        
+        <button 
+          onClick={() => {
+            console.log('Test button clicked');
+            console.log('Content simulation area:', document.getElementById('content-simulation'));
+            console.log('Framework available:', !!onApplyPaywall);
+          }}
+          className="btn-accent"
+        >
+          🐛 Debug Test
         </button>
       </div>
 

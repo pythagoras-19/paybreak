@@ -97,6 +97,11 @@ export function Dashboard({ framework, sessionData, paywallActive, onRunTestSuit
               🚀 Run Full Test Suite
             </button>
           </div>
+          <div className="action-description">
+            <p><strong>Test Soft Paywall:</strong> Navigate to the paywall simulator and apply a soft paywall to test content</p>
+            <p><strong>Bypass Tools:</strong> Access bypass techniques to test paywall security</p>
+            <p><strong>Run Full Test Suite:</strong> Automatically test all bypass techniques against the current paywall</p>
+          </div>
         </div>
 
         {/* Session Stats */}

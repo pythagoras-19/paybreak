@@ -66,8 +66,12 @@ export class PaywallSimulator {
   applySoftPaywall() {
     const { blurIntensity, overlayOpacity, modalEnabled } = this.config;
     
+    console.log('[PaywallSimulator] Applying soft paywall with config:', this.config);
+    
     // Find the content simulation area
     const contentArea = document.getElementById('content-simulation');
+    console.log('[PaywallSimulator] Content area found:', contentArea);
+    
     if (!contentArea) {
       console.warn('Content simulation area not found, applying to entire page');
       this.applySoftPaywallToPage(blurIntensity, overlayOpacity, modalEnabled);
@@ -82,6 +86,8 @@ export class PaywallSimulator {
    * Apply soft paywall to specific content area
    */
   applySoftPaywallToContent(contentArea, blurIntensity, overlayOpacity, modalEnabled) {
+    console.log('[PaywallSimulator] Applying to content area:', contentArea);
+    
     // Create overlay for content area
     const overlay = document.createElement('div');
     overlay.id = `paywall-overlay-${this.paywallId}`;
@@ -101,6 +107,8 @@ export class PaywallSimulator {
       border-radius: 8px;
     `;
 
+    console.log('[PaywallSimulator] Created overlay:', overlay);
+
     // Create modal
     if (modalEnabled) {
       const modal = document.createElement('div');
@@ -108,13 +116,38 @@ export class PaywallSimulator {
       modal.innerHTML = `
         <h3>🔒 Premium Content</h3>
         <p>This article is part of our premium content library. Subscribe to continue reading.</p>
-        <button onclick="document.getElementById('paywall-overlay-${this.paywallId}').remove()" class="btn-primary">Subscribe Now</button>
-        <button onclick="document.getElementById('paywall-overlay-${this.paywallId}').remove()" class="btn-secondary">Maybe Later</button>
+        <div class="modal-buttons">
+          <button class="btn-primary" onclick="this.closest('.paywall-overlay').remove()">Subscribe Now</button>
+          ${this.config.dismissible ? '<button class="btn-secondary" onclick="this.closest(\'.paywall-overlay\').remove()">Maybe Later</button>' : ''}
+        </div>
       `;
       overlay.appendChild(modal);
+      console.log('[PaywallSimulator] Added modal to overlay');
+    }
+
+    // Add click handler for dismissible functionality
+    if (this.config.dismissible && !modalEnabled) {
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+          overlay.remove();
+          this.logTelemetry('paywall_dismissed', {
+            method: 'click_outside',
+            timestamp: Date.now()
+          });
+        }
+      });
     }
 
     contentArea.appendChild(overlay);
+    console.log('[PaywallSimulator] Added overlay to content area');
+    
+    this.logTelemetry('paywall_overlay_created', {
+      blurIntensity,
+      overlayOpacity,
+      modalEnabled,
+      dismissible: this.config.dismissible,
+      timestamp: Date.now()
+    });
   }
 
   /**

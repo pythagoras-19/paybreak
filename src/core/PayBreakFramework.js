@@ -31,7 +31,7 @@ export class PayBreakFramework {
     console.log('[PayBreakFramework] Initializing...');
     
     // Initialize telemetry collector
-    await this.telemetryCollector.initialize();
+    this.telemetryCollector.startCollection();
     
     // Start new session
     this.currentSession = this.generateSessionId();
@@ -201,7 +201,7 @@ export class PayBreakFramework {
       isInitialized: this.isInitialized,
       paywallAttempts: this.sessionData.paywallAttempts,
       bypassAttempts: this.sessionData.bypassAttempts,
-      telemetry: this.telemetryCollector.getTelemetry(),
+      telemetry: this.telemetryCollector.getTelemetryData(),
       startTime: this.sessionData.startTime,
       endTime: this.sessionData.endTime,
       duration: this.sessionData.startTime ? 
@@ -213,7 +213,7 @@ export class PayBreakFramework {
    * Get telemetry data
    */
   getTelemetry() {
-    return this.telemetryCollector.getTelemetry();
+    return this.telemetryCollector.getTelemetryData();
   }
 
   /**
@@ -265,11 +265,12 @@ export class PayBreakFramework {
   getStatus() {
     return {
       isInitialized: this.isInitialized,
-      currentSession: this.currentSession,
+      sessionId: this.currentSession,
+      bypassEngineRunning: this.bypassEngine.isRunning,
+      telemetryEnabled: this.telemetryCollector.isCollecting,
       paywallActive: this.paywallSimulator.isActive,
       paywallType: this.paywallSimulator.paywallType,
-      telemetryEnabled: this.telemetryCollector.isEnabled,
-      bypassEngineRunning: this.bypassEngine.isRunning
+      timestamp: Date.now()
     };
   }
 } 

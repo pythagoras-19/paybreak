@@ -34,16 +34,26 @@ export function App() {
   };
 
   const handleApplyPaywall = async (type, config) => {
-    if (!framework) return;
+    console.log('[App] Attempting to apply paywall:', { type, config });
+    if (!framework) {
+      console.error('[App] Framework not initialized');
+      return;
+    }
 
     try {
+      console.log('[App] Calling framework.applySoftPaywall...');
       const result = await framework.applySoftPaywall(config);
+      console.log('[App] Paywall application result:', result);
+      
       if (result.success) {
         setPaywallActive(true);
         updateSessionData();
+        console.log('[App] Paywall applied successfully');
+      } else {
+        console.error('[App] Paywall application failed:', result.error);
       }
     } catch (error) {
-      console.error('Error applying paywall:', error);
+      console.error('[App] Error applying paywall:', error);
     }
   };
 
@@ -96,6 +106,18 @@ export function App() {
   const navigateToPage = (page) => {
     setCurrentPage(page);
     updateSessionData();
+    
+    // Auto-apply soft paywall when navigating to paywall page
+    if (page === 'paywall' && !paywallActive) {
+      setTimeout(() => {
+        handleApplyPaywall('soft', {
+          blurIntensity: 5,
+          overlayOpacity: 0.8,
+          modalEnabled: true,
+          dismissible: false
+        });
+      }, 500); // Small delay to ensure page is rendered
+    }
   };
 
   if (loading) {
