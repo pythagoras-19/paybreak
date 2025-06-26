@@ -1,28 +1,32 @@
 import { v4 as uuidv4 } from 'uuid';
 
 /**
- * Core Paywall Simulator - Handles different types of paywall implementations
+ * Core Paywall Simulator - Handles soft paywall implementation
  */
 export class PaywallSimulator {
   constructor() {
     this.paywallId = uuidv4();
     this.isActive = false;
-    this.paywallType = null;
+    this.paywallType = 'soft';
     this.config = {};
     this.telemetry = [];
     this.bypassAttempts = [];
   }
 
   /**
-   * Initialize a specific paywall type
+   * Initialize soft paywall
    */
-  initPaywall(type, config = {}) {
-    this.paywallType = type;
-    this.config = { ...this.getDefaultConfig(type), ...config };
+  initPaywall(type = 'soft', config = {}) {
+    if (type !== 'soft') {
+      console.warn('Only soft paywalls are supported. Defaulting to soft paywall.');
+    }
+    
+    this.paywallType = 'soft';
+    this.config = { ...this.getDefaultConfig(), ...config };
     this.isActive = true;
     
     this.logTelemetry('paywall_initialized', {
-      type,
+      type: 'soft',
       config: this.config,
       timestamp: Date.now()
     });
@@ -31,67 +35,24 @@ export class PaywallSimulator {
   }
 
   /**
-   * Get default configuration for paywall types
+   * Get default configuration for soft paywall
    */
-  getDefaultConfig(type) {
-    const configs = {
-      soft: {
-        blurIntensity: 5,
-        overlayOpacity: 0.8,
-        modalEnabled: true,
-        dismissible: false
-      },
-      metered: {
-        freeArticles: 3,
-        currentCount: 0,
-        resetInterval: 24 * 60 * 60 * 1000, // 24 hours
-        storageKey: 'metered_paywall_count'
-      },
-      hard: {
-        redirectUrl: '/subscribe',
-        requireLogin: true,
-        blockContent: true
-      },
-      obfuscated: {
-        obfuscationLevel: 'medium',
-        variableNameMangling: true,
-        functionNameMangling: true,
-        stringEncoding: true
-      },
-      serverValidated: {
-        cookieName: 'paywall_token',
-        validationEndpoint: '/api/validate-paywall',
-        signedCookies: true,
-        expirationTime: 3600
-      }
+  getDefaultConfig() {
+    return {
+      blurIntensity: 5,
+      overlayOpacity: 0.8,
+      modalEnabled: true,
+      dismissible: false
     };
-
-    return configs[type] || {};
   }
 
   /**
-   * Apply paywall to the current page
+   * Apply soft paywall to the current page
    */
   applyPaywall() {
     if (!this.isActive) return;
 
-    switch (this.paywallType) {
-      case 'soft':
-        this.applySoftPaywall();
-        break;
-      case 'metered':
-        this.applyMeteredPaywall();
-        break;
-      case 'hard':
-        this.applyHardPaywall();
-        break;
-      case 'obfuscated':
-        this.applyObfuscatedPaywall();
-        break;
-      case 'serverValidated':
-        this.applyServerValidatedPaywall();
-        break;
-    }
+    this.applySoftPaywall();
 
     this.logTelemetry('paywall_applied', {
       type: this.paywallType,
@@ -203,142 +164,6 @@ export class PaywallSimulator {
   }
 
   /**
-   * Metered paywall - count-based access
-   */
-  applyMeteredPaywall() {
-    const { freeArticles, storageKey } = this.config;
-    
-    // Get current count from storage
-    let currentCount = parseInt(localStorage.getItem(storageKey) || '0');
-    
-    if (currentCount >= freeArticles) {
-      // Apply paywall to content area
-      const contentArea = document.getElementById('content-simulation');
-      if (contentArea) {
-        this.applySoftPaywallToContent(contentArea, 5, 0.8, true);
-      } else {
-        this.applySoftPaywallToPage(5, 0.8, true);
-      }
-    } else {
-      // Increment count
-      currentCount++;
-      localStorage.setItem(storageKey, currentCount.toString());
-      
-      // Show meter indicator in content area
-      this.showMeterIndicator(currentCount, freeArticles);
-    }
-  }
-
-  /**
-   * Show meter indicator
-   */
-  showMeterIndicator(current, total) {
-    const contentArea = document.getElementById('content-simulation');
-    if (!contentArea) return;
-    
-    const indicator = document.createElement('div');
-    indicator.id = `meter-indicator-${this.paywallId}`;
-    indicator.className = 'meter-indicator';
-    indicator.textContent = `${current}/${total} free articles used`;
-    contentArea.appendChild(indicator);
-  }
-
-  /**
-   * Hard paywall - redirect or block content
-   */
-  applyHardPaywall() {
-    const { redirectUrl, requireLogin, blockContent } = this.config;
-    
-    if (redirectUrl) {
-      // Simulate redirect
-      window.location.href = redirectUrl;
-    } else if (blockContent) {
-      // Hide all content
-      document.body.innerHTML = `
-        <div style="text-align: center; padding: 50px;">
-          <h1>Content Blocked</h1>
-          <p>This content requires a subscription.</p>
-          <button onclick="window.location.reload()">Go Back</button>
-        </div>
-      `;
-    }
-  }
-
-  /**
-   * Obfuscated paywall - JavaScript obfuscation
-   */
-  applyObfuscatedPaywall() {
-    const { obfuscationLevel, variableNameMangling, functionNameMangling } = this.config;
-    
-    // Create obfuscated paywall logic
-    const obfuscatedCode = this.generateObfuscatedCode();
-    
-    // Inject obfuscated script
-    const script = document.createElement('script');
-    script.textContent = obfuscatedCode;
-    document.head.appendChild(script);
-    
-    // Apply obfuscated paywall
-    this.applySoftPaywall();
-  }
-
-  /**
-   * Generate obfuscated JavaScript code
-   */
-  generateObfuscatedCode() {
-    return `
-      (function(){
-        var _0x1a2b = ['paywall', 'check', 'block', 'content'];
-        var _0x3c4d = function(_0x5e6f) {
-          return _0x1a2b[_0x5e6f];
-        };
-        
-        var _0x7g8h = function() {
-          var _0x9i0j = document[_0x3c4d(0)];
-          if (_0x9i0j) {
-            _0x9i0j[_0x3c4d(1)] = true;
-            _0x9i0j[_0x3c4d(2)] = true;
-          }
-        };
-        
-        _0x7g8h();
-      })();
-    `;
-  }
-
-  /**
-   * Server-validated paywall
-   */
-  applyServerValidatedPaywall() {
-    const { cookieName, validationEndpoint, signedCookies } = this.config;
-    
-    // Check for valid token
-    const token = this.getCookie(cookieName);
-    
-    if (!token || !this.validateToken(token)) {
-      this.applySoftPaywall();
-    }
-  }
-
-  /**
-   * Get cookie value
-   */
-  getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-    return null;
-  }
-
-  /**
-   * Validate token (simulated)
-   */
-  validateToken(token) {
-    // Simulate token validation
-    return token && token.length > 10;
-  }
-
-  /**
    * Log telemetry data
    */
   logTelemetry(event, data) {
@@ -347,14 +172,11 @@ export class PaywallSimulator {
       event,
       data,
       timestamp: Date.now(),
-      paywallId: this.paywallId,
-      paywallType: this.paywallType
+      paywallId: this.paywallId
     };
-    
+
     this.telemetry.push(telemetryEntry);
-    
-    // Also log to console for debugging
-    console.log(`[PayBreak Telemetry] ${event}:`, telemetryEntry);
+    console.log(`[PaywallSimulator] ${event}:`, data);
   }
 
   /**
@@ -370,11 +192,9 @@ export class PaywallSimulator {
       paywallId: this.paywallId,
       paywallType: this.paywallType
     };
-    
+
     this.bypassAttempts.push(attempt);
     this.logTelemetry('bypass_attempt', attempt);
-    
-    return attempt;
   }
 
   /**
@@ -395,13 +215,13 @@ export class PaywallSimulator {
    * Reset paywall
    */
   reset() {
+    // Remove any existing paywall overlays
+    const overlays = document.querySelectorAll('[id*="paywall-overlay"]');
+    overlays.forEach(overlay => overlay.remove());
+
     this.isActive = false;
     this.paywallType = null;
     this.config = {};
-    
-    // Remove paywall elements
-    const elements = document.querySelectorAll(`[id*="${this.paywallId}"]`);
-    elements.forEach(el => el.remove());
     
     this.logTelemetry('paywall_reset', {
       timestamp: Date.now()

@@ -1,617 +1,466 @@
-import { v4 as uuidv4 } from 'uuid';
-
 /**
- * Bypass Engine - Implements various bypass techniques and automation
+ * Bypass Engine - Soft Paywall Bypass Techniques
  */
 export class BypassEngine {
-  constructor(paywallSimulator) {
-    this.paywallSimulator = paywallSimulator;
-    this.techniques = this.initializeTechniques();
-    this.executionHistory = [];
-    this.currentSession = uuidv4();
-  }
-
-  /**
-   * Initialize all bypass techniques
-   */
-  initializeTechniques() {
-    return {
-      // DOM-based attacks
-      domRemoval: {
-        name: 'DOM Element Removal',
-        description: 'Remove paywall overlay and modal elements',
-        execute: () => this.executeDOMRemoval(),
-        category: 'dom'
-      },
-      unblurContent: {
-        name: 'Content Unblur',
-        description: 'Remove blur effects from content',
-        execute: () => this.executeUnblurContent(),
-        category: 'dom'
-      },
-      overrideStyles: {
-        name: 'Style Override',
-        description: 'Override paywall-related CSS styles',
-        execute: () => this.executeStyleOverride(),
-        category: 'dom'
-      },
-
-      // JavaScript hook attacks
-      functionOverride: {
-        name: 'Function Override',
-        description: 'Override paywall-related JavaScript functions',
-        execute: () => this.executeFunctionOverride(),
-        category: 'javascript'
-      },
-      propertyHooks: {
-        name: 'Property Hooks',
-        description: 'Hook into object properties and getters',
-        execute: () => this.executePropertyHooks(),
-        category: 'javascript'
-      },
-      prototypePollution: {
-        name: 'Prototype Pollution',
-        description: 'Attempt prototype pollution attacks',
-        execute: () => this.executePrototypePollution(),
-        category: 'javascript'
-      },
-
-      // Storage manipulation
-      cookieManipulation: {
-        name: 'Cookie Manipulation',
-        description: 'Manipulate paywall-related cookies',
-        execute: () => this.executeCookieManipulation(),
-        category: 'storage'
-      },
-      localStorageReset: {
-        name: 'LocalStorage Reset',
-        description: 'Reset localStorage counters and flags',
-        execute: () => this.executeLocalStorageReset(),
-        category: 'storage'
-      },
-      sessionStorageClear: {
-        name: 'SessionStorage Clear',
-        description: 'Clear sessionStorage data',
-        execute: () => this.executeSessionStorageClear(),
-        category: 'storage'
-      },
-
-      // Network interception
-      fetchInterception: {
-        name: 'Fetch Interception',
-        description: 'Intercept and modify fetch requests',
-        execute: () => this.executeFetchInterception(),
-        category: 'network'
-      },
-      xhrOverride: {
-        name: 'XHR Override',
-        description: 'Override XMLHttpRequest behavior',
-        execute: () => this.executeXHROverride(),
-        category: 'network'
-      },
-
-      // CSP bypass attempts
-      jsonpBypass: {
-        name: 'JSONP Bypass',
-        description: 'Attempt JSONP-based CSP bypass',
-        execute: () => this.executeJSONPBypass(),
-        category: 'csp'
-      },
-      postMessageBypass: {
-        name: 'PostMessage Bypass',
-        description: 'Use postMessage for CSP bypass',
-        execute: () => this.executePostMessageBypass(),
-        category: 'csp'
-      },
-
-      // Advanced techniques
-      iframeInjection: {
-        name: 'Iframe Injection',
-        description: 'Inject iframe to bypass restrictions',
-        execute: () => this.executeIframeInjection(),
-        category: 'advanced'
-      },
-      workerBypass: {
-        name: 'Web Worker Bypass',
-        description: 'Use Web Workers to bypass restrictions',
-        execute: () => this.executeWorkerBypass(),
-        category: 'advanced'
-      }
-    };
-  }
-
-  /**
-   * Execute a specific bypass technique
-   */
-  async executeTechnique(techniqueName) {
-    const technique = this.techniques[techniqueName];
-    if (!technique) {
-      throw new Error(`Unknown technique: ${techniqueName}`);
-    }
-
-    const executionId = uuidv4();
-    const startTime = Date.now();
-
-    try {
-      // Capture initial state
-      const initialState = this.capturePageState();
-
-      // Execute technique
-      const result = await technique.execute();
-
-      // Capture final state
-      const finalState = this.capturePageState();
-
-      // Determine success
-      const success = this.evaluateBypassSuccess(initialState, finalState);
-
-      // Record execution
-      const execution = {
-        id: executionId,
-        technique: techniqueName,
-        techniqueDetails: technique,
-        success,
-        result,
-        executionTime: Date.now() - startTime,
-        initialState,
-        finalState,
-        timestamp: Date.now(),
-        sessionId: this.currentSession
-      };
-
-      this.executionHistory.push(execution);
-      this.paywallSimulator.recordBypassAttempt(techniqueName, success, execution);
-
-      return execution;
-
-    } catch (error) {
-      const execution = {
-        id: executionId,
-        technique: techniqueName,
-        techniqueDetails: technique,
-        success: false,
-        error: error.message,
-        executionTime: Date.now() - startTime,
-        timestamp: Date.now(),
-        sessionId: this.currentSession
-      };
-
-      this.executionHistory.push(execution);
-      this.paywallSimulator.recordBypassAttempt(techniqueName, false, execution);
-
-      throw error;
-    }
-  }
-
-  /**
-   * Execute all bypass techniques
-   */
-  async executeAllTechniques() {
-    const results = [];
-    
-    for (const [name, technique] of Object.entries(this.techniques)) {
-      try {
-        const result = await this.executeTechnique(name);
-        results.push(result);
-        
-        // Small delay between techniques
-        await new Promise(resolve => setTimeout(resolve, 100));
-        
-      } catch (error) {
-        console.error(`Error executing technique ${name}:`, error);
-        results.push({
-          technique: name,
-          success: false,
-          error: error.message
-        });
-      }
-    }
-
-    return results;
-  }
-
-  /**
-   * Execute techniques by category
-   */
-  async executeTechniquesByCategory(category) {
-    const categoryTechniques = Object.entries(this.techniques)
-      .filter(([_, technique]) => technique.category === category)
-      .map(([name, _]) => name);
-
-    const results = [];
-    for (const techniqueName of categoryTechniques) {
-      try {
-        const result = await this.executeTechnique(techniqueName);
-        results.push(result);
-      } catch (error) {
-        console.error(`Error executing ${techniqueName}:`, error);
-      }
-    }
-
-    return results;
-  }
-
-  /**
-   * DOM-based bypass techniques
-   */
-  executeDOMRemoval() {
-    const selectors = [
-      '[id*="paywall"]',
-      '[class*="paywall"]',
-      '[id*="overlay"]',
-      '[class*="overlay"]',
-      '[id*="modal"]',
-      '[class*="modal"]',
-      '[style*="blur"]',
-      '[style*="opacity"]'
+  constructor() {
+    this.techniques = [
+      'DOM Manipulation',
+      'CSS Override',
+      'JavaScript Hooks',
+      'Storage Manipulation',
+      'Network Interception',
+      'CSP Bypass',
+      'Advanced Methods'
     ];
-
-    let removedCount = 0;
-    selectors.forEach(selector => {
-      const elements = document.querySelectorAll(selector);
-      elements.forEach(el => {
-        el.remove();
-        removedCount++;
-      });
-    });
-
-    return { removedCount, selectors };
+    
+    this.results = [];
+    this.isRunning = false;
   }
 
-  executeUnblurContent() {
-    const elements = document.querySelectorAll('*');
-    let unblurredCount = 0;
+  /**
+   * Run all bypass techniques against soft paywall
+   */
+  async runFullTestSuite(paywallSimulator) {
+    if (this.isRunning) return;
+    
+    this.isRunning = true;
+    this.results = [];
+    
+    console.log('[BypassEngine] Starting full test suite for soft paywall...');
+    
+    // Apply soft paywall first
+    paywallSimulator.initPaywall('soft');
+    paywallSimulator.applyPaywall();
+    
+    // Wait for paywall to be applied
+    await this.delay(500);
+    
+    // Run each bypass technique
+    for (const technique of this.techniques) {
+      const result = await this.runTechnique(technique, paywallSimulator);
+      this.results.push(result);
+      
+      // Small delay between techniques
+      await this.delay(200);
+    }
+    
+    // Run auto-fuzzing phase
+    const fuzzResults = await this.runAutoFuzzing(paywallSimulator);
+    this.results.push(...fuzzResults);
+    
+    this.isRunning = false;
+    
+    console.log('[BypassEngine] Test suite completed:', this.results);
+    return this.results;
+  }
 
-    elements.forEach(el => {
-      const style = window.getComputedStyle(el);
-      if (style.filter.includes('blur') || style.backdropFilter.includes('blur')) {
-        el.style.filter = 'none';
-        el.style.backdropFilter = 'none';
-        unblurredCount++;
+  /**
+   * Run a specific bypass technique
+   */
+  async runTechnique(technique, paywallSimulator) {
+    console.log(`[BypassEngine] Running technique: ${technique}`);
+    
+    const startTime = Date.now();
+    let success = false;
+    let details = {};
+    
+    try {
+      switch (technique) {
+        case 'DOM Manipulation':
+          success = await this.domManipulation(paywallSimulator);
+          break;
+        case 'CSS Override':
+          success = await this.cssOverride(paywallSimulator);
+          break;
+        case 'JavaScript Hooks':
+          success = await this.javascriptHooks(paywallSimulator);
+          break;
+        case 'Storage Manipulation':
+          success = await this.storageManipulation(paywallSimulator);
+          break;
+        case 'Network Interception':
+          success = await this.networkInterception(paywallSimulator);
+          break;
+        case 'CSP Bypass':
+          success = await this.cspBypass(paywallSimulator);
+          break;
+        case 'Advanced Methods':
+          success = await this.advancedMethods(paywallSimulator);
+          break;
       }
-    });
-
-    return { unblurredCount };
+    } catch (error) {
+      console.error(`[BypassEngine] Error in ${technique}:`, error);
+      details.error = error.message;
+    }
+    
+    const result = {
+      technique,
+      success,
+      details,
+      duration: Date.now() - startTime,
+      timestamp: Date.now()
+    };
+    
+    // Record attempt in paywall simulator
+    paywallSimulator.recordBypassAttempt(technique, success, details);
+    
+    return result;
   }
 
-  executeStyleOverride() {
+  /**
+   * DOM Manipulation - Remove paywall elements
+   */
+  async domManipulation(paywallSimulator) {
+    const overlays = document.querySelectorAll('[id*="paywall-overlay"]');
+    const modals = document.querySelectorAll('.paywall-modal');
+    
+    overlays.forEach(overlay => overlay.remove());
+    modals.forEach(modal => modal.remove());
+    
+    return overlays.length > 0 || modals.length > 0;
+  }
+
+  /**
+   * CSS Override - Override paywall styles
+   */
+  async cssOverride(paywallSimulator) {
     const style = document.createElement('style');
     style.textContent = `
-      [id*="paywall"], [class*="paywall"] { display: none !important; }
-      [style*="blur"] { filter: none !important; backdrop-filter: none !important; }
-      [style*="opacity"] { opacity: 1 !important; }
-      body { overflow: auto !important; }
+      [id*="paywall-overlay"] {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+      }
+      .paywall-modal {
+        display: none !important;
+      }
+      .paywall-overlay {
+        backdrop-filter: none !important;
+        background: transparent !important;
+      }
     `;
     document.head.appendChild(style);
-
-    return { styleInjected: true };
-  }
-
-  /**
-   * JavaScript hook techniques
-   */
-  executeFunctionOverride() {
-    const overrides = {
-      'checkPaywall': () => false,
-      'isSubscribed': () => true,
-      'hasAccess': () => true,
-      'blockContent': () => false
-    };
-
-    const overriddenFunctions = [];
     
-    Object.entries(overrides).forEach(([funcName, overrideFunc]) => {
-      if (window[funcName]) {
-        const original = window[funcName];
-        window[funcName] = overrideFunc;
-        overriddenFunctions.push({ name: funcName, original });
-      }
-    });
-
-    return { overriddenFunctions };
-  }
-
-  executePropertyHooks() {
-    const hooks = [];
-    
-    // Hook into common paywall properties
-    const properties = ['paywall', 'subscription', 'access', 'blocked'];
-    
-    properties.forEach(prop => {
-      if (window[prop] !== undefined) {
-        const original = window[prop];
-        Object.defineProperty(window, prop, {
-          get: () => false,
-          set: () => {},
-          configurable: true
-        });
-        hooks.push({ property: prop, original });
-      }
-    });
-
-    return { hooks };
-  }
-
-  executePrototypePollution() {
-    // Attempt prototype pollution on common objects
-    const targets = [Object.prototype, Array.prototype, String.prototype];
-    const payloads = [
-      { '__proto__.paywall': false },
-      { '__proto__.blocked': false },
-      { '__proto__.hasAccess': true }
-    ];
-
-    const attempts = [];
-    
-    targets.forEach(target => {
-      payloads.forEach(payload => {
-        try {
-          Object.assign(target, payload);
-          attempts.push({ target: target.constructor.name, payload, success: true });
-        } catch (error) {
-          attempts.push({ target: target.constructor.name, payload, success: false, error: error.message });
-        }
-      });
-    });
-
-    return { attempts };
-  }
-
-  /**
-   * Storage manipulation techniques
-   */
-  executeCookieManipulation() {
-    const paywallCookies = [
-      'paywall_token',
-      'subscription_status',
-      'access_granted',
-      'metered_count'
-    ];
-
-    const manipulated = [];
-    
-    paywallCookies.forEach(cookieName => {
-      const value = this.getCookie(cookieName);
-      if (value !== null) {
-        // Try to manipulate cookie value
-        document.cookie = `${cookieName}=true; path=/; max-age=3600`;
-        manipulated.push({ name: cookieName, originalValue: value, newValue: 'true' });
-      }
-    });
-
-    return { manipulated };
-  }
-
-  executeLocalStorageReset() {
-    const paywallKeys = [
-      'paywall_count',
-      'metered_paywall_count',
-      'subscription_status',
-      'access_granted'
-    ];
-
-    const reset = [];
-    
-    paywallKeys.forEach(key => {
-      const value = localStorage.getItem(key);
-      if (value !== null) {
-        localStorage.removeItem(key);
-        reset.push({ key, originalValue: value });
-      }
-    });
-
-    return { reset };
-  }
-
-  executeSessionStorageClear() {
-    const keys = Object.keys(sessionStorage);
-    const paywallKeys = keys.filter(key => 
-      key.toLowerCase().includes('paywall') || 
-      key.toLowerCase().includes('subscription') ||
-      key.toLowerCase().includes('access')
+    // Check if paywall is still visible
+    const overlays = document.querySelectorAll('[id*="paywall-overlay"]');
+    return overlays.length === 0 || Array.from(overlays).every(overlay => 
+      overlay.style.display === 'none' || overlay.style.visibility === 'hidden'
     );
-
-    const cleared = [];
-    paywallKeys.forEach(key => {
-      const value = sessionStorage.getItem(key);
-      sessionStorage.removeItem(key);
-      cleared.push({ key, originalValue: value });
-    });
-
-    return { cleared };
   }
 
   /**
-   * Network interception techniques
+   * JavaScript Hooks - Intercept and modify paywall functions
    */
-  executeFetchInterception() {
-    const originalFetch = window.fetch;
-    const intercepted = [];
+  async javascriptHooks(paywallSimulator) {
+    // Override paywall-related functions
+    window.applyPaywall = () => console.log('Paywall application blocked');
+    window.initPaywall = () => console.log('Paywall initialization blocked');
+    
+    // Hook into DOM manipulation
+    const originalAppendChild = Element.prototype.appendChild;
+    Element.prototype.appendChild = function(child) {
+      if (child.id && child.id.includes('paywall-overlay')) {
+        console.log('Paywall overlay append blocked');
+        return child; // Don't actually append
+      }
+      return originalAppendChild.call(this, child);
+    };
+    
+    return true;
+  }
 
-    window.fetch = async (...args) => {
-      const [url, options] = args;
-      
-      // Intercept paywall-related requests
+  /**
+   * Storage Manipulation - Clear paywall-related storage
+   */
+  async storageManipulation(paywallSimulator) {
+    // Clear localStorage
+    const keys = Object.keys(localStorage);
+    keys.forEach(key => {
+      if (key.includes('paywall') || key.includes('metered')) {
+        localStorage.removeItem(key);
+      }
+    });
+    
+    // Clear sessionStorage
+    const sessionKeys = Object.keys(sessionStorage);
+    sessionKeys.forEach(key => {
+      if (key.includes('paywall') || key.includes('metered')) {
+        sessionStorage.removeItem(key);
+      }
+    });
+    
+    // Clear cookies
+    document.cookie.split(";").forEach(cookie => {
+      const eqPos = cookie.indexOf("=");
+      const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+      if (name.includes('paywall') || name.includes('metered')) {
+        document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
+      }
+    });
+    
+    return true;
+  }
+
+  /**
+   * Network Interception - Block paywall-related requests
+   */
+  async networkInterception(paywallSimulator) {
+    // Override fetch to block paywall requests
+    const originalFetch = window.fetch;
+    window.fetch = function(url, options) {
       if (typeof url === 'string' && (
         url.includes('paywall') || 
         url.includes('subscription') || 
-        url.includes('access')
+        url.includes('premium')
       )) {
-        intercepted.push({ url, options });
-        
-        // Return fake successful response
-        return new Response(JSON.stringify({ access: true, subscribed: true }), {
+        console.log('Paywall network request blocked:', url);
+        return Promise.resolve(new Response(JSON.stringify({ success: true }), {
           status: 200,
           headers: { 'Content-Type': 'application/json' }
-        });
+        }));
       }
-
-      return originalFetch(...args);
+      return originalFetch.call(this, url, options);
     };
-
-    return { intercepted, originalFetch };
-  }
-
-  executeXHROverride() {
-    const originalOpen = XMLHttpRequest.prototype.open;
-    const originalSend = XMLHttpRequest.prototype.send;
-    const overridden = [];
-
-    XMLHttpRequest.prototype.open = function(method, url, ...args) {
+    
+    // Override XMLHttpRequest
+    const originalXHROpen = XMLHttpRequest.prototype.open;
+    XMLHttpRequest.prototype.open = function(method, url) {
       if (typeof url === 'string' && (
         url.includes('paywall') || 
         url.includes('subscription') || 
-        url.includes('access')
+        url.includes('premium')
       )) {
-        overridden.push({ method, url });
-        // Override with fake URL
-        return originalOpen.call(this, method, '/fake-access-endpoint', ...args);
+        console.log('Paywall XHR request blocked:', url);
+        return;
       }
-      return originalOpen.call(this, method, url, ...args);
+      return originalXHROpen.call(this, method, url);
     };
-
-    return { overridden };
-  }
-
-  /**
-   * CSP bypass techniques
-   */
-  executeJSONPBypass() {
-    // Attempt JSONP bypass by creating script tags
-    const script = document.createElement('script');
-    script.src = 'data:text/javascript,window.paywall=false;window.access=true;';
-    document.head.appendChild(script);
-
-    return { jsonpInjected: true };
-  }
-
-  executePostMessageBypass() {
-    // Use postMessage to bypass CSP
-    window.postMessage({
-      type: 'paywall_bypass',
-      payload: { access: true, subscribed: true }
-    }, '*');
-
-    return { postMessageSent: true };
-  }
-
-  /**
-   * Advanced techniques
-   */
-  executeIframeInjection() {
-    const iframe = document.createElement('iframe');
-    iframe.src = 'about:blank';
-    iframe.style.display = 'none';
-    document.body.appendChild(iframe);
-
-    // Try to access parent context
-    try {
-      iframe.contentWindow.parent = window;
-    } catch (e) {
-      // Cross-origin restrictions
-    }
-
-    return { iframeInjected: true };
-  }
-
-  executeWorkerBypass() {
-    const workerCode = `
-      self.onmessage = function(e) {
-        if (e.data.type === 'paywall_check') {
-          self.postMessage({ access: true, subscribed: true });
-        }
-      };
-    `;
-
-    const blob = new Blob([workerCode], { type: 'application/javascript' });
-    const worker = new Worker(URL.createObjectURL(blob));
     
-    worker.postMessage({ type: 'paywall_check' });
-
-    return { workerCreated: true };
+    return true;
   }
 
   /**
-   * Utility methods
+   * CSP Bypass - Bypass Content Security Policy
    */
-  getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-    return null;
-  }
-
-  capturePageState() {
-    return {
-      url: window.location.href,
-      title: document.title,
-      paywallElements: document.querySelectorAll('[id*="paywall"], [class*="paywall"]').length,
-      overlayElements: document.querySelectorAll('[id*="overlay"], [class*="overlay"]').length,
-      modalElements: document.querySelectorAll('[id*="modal"], [class*="modal"]').length,
-      cookies: document.cookie,
-      localStorage: Object.keys(localStorage).filter(key => 
-        key.toLowerCase().includes('paywall') || 
-        key.toLowerCase().includes('subscription')
-      ),
-      timestamp: Date.now()
-    };
-  }
-
-  evaluateBypassSuccess(initialState, finalState) {
-    // Check if paywall elements were removed
-    const paywallRemoved = finalState.paywallElements < initialState.paywallElements;
-    const overlayRemoved = finalState.overlayElements < initialState.overlayElements;
-    const modalRemoved = finalState.modalElements < initialState.modalElements;
-
-    // Check if content is visible (no blur, no blocking)
-    const contentVisible = !document.querySelector('[style*="blur"]') && 
-                          !document.querySelector('[style*="display: none"]');
-
-    return paywallRemoved || overlayRemoved || modalRemoved || contentVisible;
-  }
-
-  /**
-   * Get execution history
-   */
-  getExecutionHistory() {
-    return this.executionHistory;
-  }
-
-  /**
-   * Get successful bypasses
-   */
-  getSuccessfulBypasses() {
-    return this.executionHistory.filter(execution => execution.success);
-  }
-
-  /**
-   * Generate bypass report
-   */
-  generateReport() {
-    const totalAttempts = this.executionHistory.length;
-    const successfulAttempts = this.getSuccessfulBypasses().length;
-    const successRate = totalAttempts > 0 ? (successfulAttempts / totalAttempts) * 100 : 0;
-
-    const techniquesByCategory = {};
-    this.executionHistory.forEach(execution => {
-      const category = execution.techniqueDetails?.category || 'unknown';
-      if (!techniquesByCategory[category]) {
-        techniquesByCategory[category] = { total: 0, successful: 0 };
+  async cspBypass(paywallSimulator) {
+    // Try to inject scripts to bypass CSP
+    const script = document.createElement('script');
+    script.textContent = `
+      // Remove paywall elements
+      document.querySelectorAll('[id*="paywall-overlay"]').forEach(el => el.remove());
+      document.querySelectorAll('.paywall-modal').forEach(el => el.remove());
+      
+      // Override paywall functions
+      if (window.paywallSimulator) {
+        window.paywallSimulator.isActive = false;
       }
-      techniquesByCategory[category].total++;
-      if (execution.success) {
-        techniquesByCategory[category].successful++;
-      }
+    `;
+    
+    try {
+      document.head.appendChild(script);
+      return true;
+    } catch (error) {
+      console.log('CSP blocked script injection:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Advanced Methods - Complex bypass techniques
+   */
+  async advancedMethods(paywallSimulator) {
+    // Method 1: Mutation Observer to remove paywall elements
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        mutation.addedNodes.forEach((node) => {
+          if (node.nodeType === 1 && node.id && node.id.includes('paywall-overlay')) {
+            node.remove();
+          }
+        });
+      });
     });
+    
+    observer.observe(document.body, { childList: true, subtree: true });
+    
+    // Method 2: Override CSS properties
+    const style = document.createElement('style');
+    style.textContent = `
+      *[id*="paywall"] {
+        all: unset !important;
+        display: none !important;
+      }
+    `;
+    document.head.appendChild(style);
+    
+    // Method 3: Override paywall simulator methods
+    if (paywallSimulator && paywallSimulator.applyPaywall) {
+      const originalApply = paywallSimulator.applyPaywall;
+      paywallSimulator.applyPaywall = () => {
+        console.log('Paywall application intercepted and blocked');
+        return false;
+      };
+    }
+    
+    return true;
+  }
 
+  /**
+   * Auto-fuzzing phase - Discover new bypass vectors
+   */
+  async runAutoFuzzing(paywallSimulator) {
+    console.log('[BypassEngine] Starting auto-fuzzing phase...');
+    
+    const fuzzResults = [];
+    const fuzzTechniques = [
+      'Element ID Fuzzing',
+      'Class Name Fuzzing',
+      'Attribute Fuzzing',
+      'Event Listener Fuzzing'
+    ];
+    
+    for (const technique of fuzzTechniques) {
+      const result = await this.runFuzzTechnique(technique, paywallSimulator);
+      fuzzResults.push(result);
+      await this.delay(100);
+    }
+    
+    return fuzzResults;
+  }
+
+  /**
+   * Run a fuzzing technique
+   */
+  async runFuzzTechnique(technique, paywallSimulator) {
+    console.log(`[BypassEngine] Fuzzing: ${technique}`);
+    
+    const startTime = Date.now();
+    let success = false;
+    let details = {};
+    
+    try {
+      switch (technique) {
+        case 'Element ID Fuzzing':
+          success = this.fuzzElementIds();
+          break;
+        case 'Class Name Fuzzing':
+          success = this.fuzzClassNames();
+          break;
+        case 'Attribute Fuzzing':
+          success = this.fuzzAttributes();
+          break;
+        case 'Event Listener Fuzzing':
+          success = this.fuzzEventListeners();
+          break;
+      }
+    } catch (error) {
+      details.error = error.message;
+    }
+    
     return {
-      sessionId: this.currentSession,
-      totalAttempts,
-      successfulAttempts,
-      successRate,
-      techniquesByCategory,
-      executionHistory: this.executionHistory,
+      technique: `Fuzz: ${technique}`,
+      success,
+      details,
+      duration: Date.now() - startTime,
       timestamp: Date.now()
     };
+  }
+
+  /**
+   * Fuzz element IDs
+   */
+  fuzzElementIds() {
+    const commonIds = ['paywall', 'overlay', 'modal', 'block', 'gate'];
+    let found = false;
+    
+    commonIds.forEach(id => {
+      const elements = document.querySelectorAll(`[id*="${id}"]`);
+      elements.forEach(el => {
+        el.remove();
+        found = true;
+      });
+    });
+    
+    return found;
+  }
+
+  /**
+   * Fuzz class names
+   */
+  fuzzClassNames() {
+    const commonClasses = ['paywall', 'overlay', 'modal', 'block', 'gate', 'premium'];
+    let found = false;
+    
+    commonClasses.forEach(className => {
+      const elements = document.querySelectorAll(`.${className}`);
+      elements.forEach(el => {
+        el.remove();
+        found = true;
+      });
+    });
+    
+    return found;
+  }
+
+  /**
+   * Fuzz attributes
+   */
+  fuzzAttributes() {
+    const elements = document.querySelectorAll('[data-paywall], [data-premium], [data-block]');
+    let found = false;
+    
+    elements.forEach(el => {
+      el.remove();
+      found = true;
+    });
+    
+    return found;
+  }
+
+  /**
+   * Fuzz event listeners
+   */
+  fuzzEventListeners() {
+    // Try to remove event listeners from paywall elements
+    const overlays = document.querySelectorAll('[id*="paywall-overlay"]');
+    let found = false;
+    
+    overlays.forEach(overlay => {
+      const clone = overlay.cloneNode(true);
+      overlay.parentNode.replaceChild(clone, overlay);
+      found = true;
+    });
+    
+    return found;
+  }
+
+  /**
+   * Utility function for delays
+   */
+  delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  /**
+   * Get test results
+   */
+  getResults() {
+    return this.results;
+  }
+
+  /**
+   * Clear results
+   */
+  clearResults() {
+    this.results = [];
+  }
+
+  /**
+   * Get success rate
+   */
+  getSuccessRate() {
+    if (this.results.length === 0) return 0;
+    const successful = this.results.filter(r => r.success).length;
+    return (successful / this.results.length) * 100;
   }
 } 
