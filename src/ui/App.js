@@ -54,6 +54,16 @@ export function createUI(framework) {
         <div id="analysis-panel" class="panel"></div>
       </div>
     </div>
+
+    <div class="paybreak-footer">
+      <div class="footer-content">
+        <span class="copyright">© 2025 Matt Christiansen</span>
+        <span class="separator">•</span>
+        <span class="project">PayBreak Framework</span>
+        <span class="separator">•</span>
+        <span class="rights">All rights reserved</span>
+      </div>
+    </div>
   `;
 
   console.log('[PayBreak] [UI] Container HTML created');
@@ -204,21 +214,12 @@ function addStyles() {
 
     .paybreak-content {
       flex: 1;
-      overflow: hidden;
-      position: relative;
+      overflow-y: auto;
+      padding: 2rem;
     }
 
     .panel {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      padding: 2rem;
-      overflow-y: auto;
       display: none;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
     }
 
     .panel.active {
@@ -511,6 +512,115 @@ function addStyles() {
     .tooltip:hover .tooltiptext {
       visibility: visible;
       opacity: 1;
+    }
+
+    .paybreak-footer {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(15px);
+      padding: 1rem 2rem;
+      text-align: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 0.9rem;
+      font-weight: 400;
+      letter-spacing: 0.5px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .paybreak-footer::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #fbbf24, transparent);
+      border-radius: 1px;
+    }
+
+    .paybreak-footer span:hover {
+      background: rgba(251, 191, 36, 0.15);
+      border-color: rgba(251, 191, 36, 0.3);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(251, 191, 36, 0.2);
+    }
+
+    .footer-content {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .footer-content .author {
+      color: #fbbf24;
+      font-weight: 600;
+      font-size: 0.95rem;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      position: relative;
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 4px;
+      background: rgba(251, 191, 36, 0.1);
+      border: 1px solid rgba(251, 191, 36, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    .footer-content .author:hover {
+      background: rgba(251, 191, 36, 0.15);
+      border-color: rgba(251, 191, 36, 0.3);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(251, 191, 36, 0.2);
+    }
+
+    .footer-content .copyright {
+      color: #fbbf24;
+      font-weight: 600;
+      font-size: 0.95rem;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      position: relative;
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 4px;
+      background: rgba(251, 191, 36, 0.1);
+      border: 1px solid rgba(251, 191, 36, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    .footer-content .copyright:hover {
+      background: rgba(251, 191, 36, 0.15);
+      border-color: rgba(251, 191, 36, 0.3);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(251, 191, 36, 0.2);
+    }
+
+    .footer-content .year {
+      color: rgba(255, 255, 255, 0.8);
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+
+    .footer-content .separator {
+      color: rgba(255, 255, 255, 0.4);
+      font-weight: 300;
+      font-size: 0.8rem;
+    }
+
+    .footer-content .project {
+      color: rgba(255, 255, 255, 0.7);
+      font-weight: 400;
+      font-size: 0.85rem;
+      font-style: italic;
+    }
+
+    .footer-content .rights {
+      color: rgba(255, 255, 255, 0.6);
+      font-weight: 400;
+      font-size: 0.8rem;
+      font-style: italic;
     }
   `;
   document.head.appendChild(style);
