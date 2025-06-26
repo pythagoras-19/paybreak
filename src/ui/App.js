@@ -3,6 +3,7 @@ import { createPaywallControls } from './PaywallControls.js';
 import { createBypassPanel } from './BypassPanel.js';
 import { createTelemetryViewer } from './TelemetryViewer.js';
 import { createAnalysisPanel } from './AnalysisPanel.js';
+import { createInstructions } from './Instructions.js';
 
 /**
  * Create and mount the main application UI
@@ -43,6 +44,9 @@ export function createUI(framework) {
           <button class="nav-item" data-panel="analysis">
             🔍 Analysis
           </button>
+          <button class="nav-item" data-panel="instructions">
+            📖 Instructions
+          </button>
         </nav>
       </div>
       
@@ -52,6 +56,7 @@ export function createUI(framework) {
         <div id="bypass-panel" class="panel"></div>
         <div id="telemetry-panel" class="panel"></div>
         <div id="analysis-panel" class="panel"></div>
+        <div id="instructions-panel" class="panel"></div>
       </div>
     </div>
 
@@ -283,6 +288,10 @@ function addStyles() {
     .btn.success {
       background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
       color: #1e3a8a;
+    }
+
+    .btn.info {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
     }
 
     .btn:disabled {
@@ -649,6 +658,10 @@ function initializePanels(framework) {
   console.log('[PayBreak] [UI] Initializing Analysis panel...');
   createAnalysisPanel(framework, document.getElementById('analysis-panel'));
   console.log('[PayBreak] [UI] Analysis panel initialized');
+
+  console.log('[PayBreak] [UI] Initializing Instructions panel...');
+  createInstructions(framework, document.getElementById('instructions-panel'));
+  console.log('[PayBreak] [UI] Instructions panel initialized');
 }
 
 /**

@@ -23,6 +23,9 @@ export function createDashboard(framework, container) {
         <button class="btn danger" id="reset-framework">
           🔄 Reset Framework
         </button>
+        <button class="btn info" id="view-instructions">
+          📖 View Instructions
+        </button>
       </div>
 
       <div class="card">
@@ -287,6 +290,15 @@ function setupDashboardEvents(framework, container) {
         button.disabled = false;
         button.textContent = originalText;
       }
+    }
+  });
+
+  // View instructions
+  container.querySelector('#view-instructions').addEventListener('click', () => {
+    const instructionsTab = document.querySelector('[data-panel="instructions"]');
+    if (instructionsTab) {
+      instructionsTab.click();
+      addActivityLog('Navigated to instructions manual', 'info');
     }
   });
 }
