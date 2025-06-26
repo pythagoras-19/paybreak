@@ -125,22 +125,22 @@ export function createDashboard(framework, container) {
         <div class="card" style="margin: 0;">
           <h4>🧱 Soft Paywall</h4>
           <p>Blur + modal overlay</p>
-          <button class="btn" onclick="window.paybreak.applyPaywall('soft')">Test Soft</button>
+          <button class="btn" onclick="testSoftPaywall()">Test Soft</button>
         </div>
         <div class="card" style="margin: 0;">
           <h4>📊 Metered Paywall</h4>
           <p>Count-based access</p>
-          <button class="btn" onclick="window.paybreak.applyPaywall('metered')">Test Metered</button>
+          <button class="btn" onclick="testMeteredPaywall()">Test Metered</button>
         </div>
         <div class="card" style="margin: 0;">
           <h4>🔒 Hard Paywall</h4>
           <p>Redirect/block content</p>
-          <button class="btn" onclick="window.paybreak.applyPaywall('hard')">Test Hard</button>
+          <button class="btn" onclick="testHardPaywall()">Test Hard</button>
         </div>
         <div class="card" style="margin: 0;">
           <h4>🔐 Obfuscated</h4>
           <p>JS obfuscation</p>
-          <button class="btn" onclick="window.paybreak.applyPaywall('obfuscated')">Test Obfuscated</button>
+          <button class="btn" onclick="testObfuscatedPaywall()">Test Obfuscated</button>
         </div>
       </div>
     </div>
@@ -153,6 +153,48 @@ export function createDashboard(framework, container) {
   // Start metrics updates
   updateMetrics(framework);
   setInterval(() => updateMetrics(framework), 2000);
+
+  // Add global functions for paywall testing
+  window.testSoftPaywall = () => {
+    // Navigate to paywall simulator and apply soft paywall
+    const paywallTab = document.querySelector('[data-panel="paywall"]');
+    if (paywallTab) {
+      paywallTab.click();
+      setTimeout(() => {
+        window.paybreak.applyPaywall('soft');
+      }, 500);
+    }
+  };
+
+  window.testMeteredPaywall = () => {
+    const paywallTab = document.querySelector('[data-panel="paywall"]');
+    if (paywallTab) {
+      paywallTab.click();
+      setTimeout(() => {
+        window.paybreak.applyPaywall('metered');
+      }, 500);
+    }
+  };
+
+  window.testHardPaywall = () => {
+    const paywallTab = document.querySelector('[data-panel="paywall"]');
+    if (paywallTab) {
+      paywallTab.click();
+      setTimeout(() => {
+        window.paybreak.applyPaywall('hard');
+      }, 500);
+    }
+  };
+
+  window.testObfuscatedPaywall = () => {
+    const paywallTab = document.querySelector('[data-panel="paywall"]');
+    if (paywallTab) {
+      paywallTab.click();
+      setTimeout(() => {
+        window.paybreak.applyPaywall('obfuscated');
+      }, 500);
+    }
+  };
 }
 
 /**

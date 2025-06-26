@@ -105,7 +105,62 @@ export class PaywallSimulator {
   applySoftPaywall() {
     const { blurIntensity, overlayOpacity, modalEnabled } = this.config;
     
-    // Create overlay
+    // Find the content simulation area
+    const contentArea = document.getElementById('content-simulation');
+    if (!contentArea) {
+      console.warn('Content simulation area not found, applying to entire page');
+      this.applySoftPaywallToPage(blurIntensity, overlayOpacity, modalEnabled);
+      return;
+    }
+    
+    // Apply paywall to content area only
+    this.applySoftPaywallToContent(contentArea, blurIntensity, overlayOpacity, modalEnabled);
+  }
+
+  /**
+   * Apply soft paywall to specific content area
+   */
+  applySoftPaywallToContent(contentArea, blurIntensity, overlayOpacity, modalEnabled) {
+    // Create overlay for content area
+    const overlay = document.createElement('div');
+    overlay.id = `paywall-overlay-${this.paywallId}`;
+    overlay.className = 'paywall-overlay';
+    overlay.style.cssText = `
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, ${overlayOpacity});
+      z-index: 1000;
+      backdrop-filter: blur(${blurIntensity}px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+    `;
+
+    // Create modal
+    if (modalEnabled) {
+      const modal = document.createElement('div');
+      modal.className = 'paywall-modal';
+      modal.innerHTML = `
+        <h3>🔒 Premium Content</h3>
+        <p>This article is part of our premium content library. Subscribe to continue reading.</p>
+        <button onclick="document.getElementById('paywall-overlay-${this.paywallId}').remove()" class="btn-primary">Subscribe Now</button>
+        <button onclick="document.getElementById('paywall-overlay-${this.paywallId}').remove()" class="btn-secondary">Maybe Later</button>
+      `;
+      overlay.appendChild(modal);
+    }
+
+    contentArea.appendChild(overlay);
+  }
+
+  /**
+   * Apply soft paywall to entire page (fallback)
+   */
+  applySoftPaywallToPage(blurIntensity, overlayOpacity, modalEnabled) {
+    // Create overlay for entire page
     const overlay = document.createElement('div');
     overlay.id = `paywall-overlay-${this.paywallId}`;
     overlay.style.cssText = `
@@ -122,7 +177,6 @@ export class PaywallSimulator {
     // Create modal
     if (modalEnabled) {
       const modal = document.createElement('div');
-      modal.id = `paywall-modal-${this.paywallId}`;
       modal.style.cssText = `
         position: fixed;
         top: 50%;
@@ -158,14 +212,19 @@ export class PaywallSimulator {
     let currentCount = parseInt(localStorage.getItem(storageKey) || '0');
     
     if (currentCount >= freeArticles) {
-      // Apply paywall
-      this.applySoftPaywall();
+      // Apply paywall to content area
+      const contentArea = document.getElementById('content-simulation');
+      if (contentArea) {
+        this.applySoftPaywallToContent(contentArea, 5, 0.8, true);
+      } else {
+        this.applySoftPaywallToPage(5, 0.8, true);
+      }
     } else {
       // Increment count
       currentCount++;
       localStorage.setItem(storageKey, currentCount.toString());
       
-      // Show meter indicator
+      // Show meter indicator in content area
       this.showMeterIndicator(currentCount, freeArticles);
     }
   }
@@ -174,21 +233,14 @@ export class PaywallSimulator {
    * Show meter indicator
    */
   showMeterIndicator(current, total) {
+    const contentArea = document.getElementById('content-simulation');
+    if (!contentArea) return;
+    
     const indicator = document.createElement('div');
     indicator.id = `meter-indicator-${this.paywallId}`;
-    indicator.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: rgba(0, 0, 0, 0.8);
-      color: white;
-      padding: 10px 15px;
-      border-radius: 5px;
-      font-size: 14px;
-      z-index: 9998;
-    `;
+    indicator.className = 'meter-indicator';
     indicator.textContent = `${current}/${total} free articles used`;
-    document.body.appendChild(indicator);
+    contentArea.appendChild(indicator);
   }
 
   /**

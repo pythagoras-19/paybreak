@@ -5,7 +5,7 @@ export function createPaywallControls(framework, container) {
   container.innerHTML = `
     <div class="card">
       <h2>🧱 Paywall Simulator</h2>
-      <p>Configure and test different types of paywall implementations.</p>
+      <p>Configure and test different types of paywall implementations on simulated content.</p>
     </div>
 
     <div class="grid">
@@ -40,6 +40,102 @@ export function createPaywallControls(framework, container) {
           <p><strong>ID:</strong> <span id="paywall-id">None</span></p>
           <p><strong>Applied:</strong> <span id="paywall-applied-time">Never</span></p>
         </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>📰 Simulated Content Area</h3>
+      <p>This area simulates a real article that would be behind a paywall. Apply paywalls to this content to test bypass techniques.</p>
+      
+      <div id="content-simulation" class="content-simulation">
+        <article class="simulated-article">
+          <header class="article-header">
+            <h1 class="article-title">The Future of Web Security: Understanding Paywall Vulnerabilities</h1>
+            <div class="article-meta">
+              <span class="author">By Dr. Sarah Chen</span>
+              <span class="date">December 15, 2024</span>
+              <span class="read-time">8 min read</span>
+            </div>
+          </header>
+          
+          <div class="article-content">
+            <p class="lead">In today's digital landscape, paywalls have become a crucial revenue model for content creators. However, these security measures are not impervious to bypass attempts, raising important questions about their effectiveness and the future of content monetization.</p>
+            
+            <h2>The Evolution of Paywall Technology</h2>
+            <p>Paywalls have evolved significantly since their inception. Early implementations were simple redirects or basic JavaScript overlays that could be easily circumvented. Modern paywalls employ sophisticated techniques including:</p>
+            
+            <ul>
+              <li><strong>Client-side validation</strong> with obfuscated JavaScript</li>
+              <li><strong>Server-side verification</strong> of subscription status</li>
+              <li><strong>Behavioral analysis</strong> to detect bypass attempts</li>
+              <li><strong>Multi-layered protection</strong> combining multiple techniques</li>
+            </ul>
+            
+            <h2>Common Bypass Techniques</h2>
+            <p>Security researchers have identified several common methods used to bypass paywalls:</p>
+            
+            <h3>1. DOM Manipulation</h3>
+            <p>The most straightforward approach involves directly modifying the Document Object Model to remove paywall elements. This can include:</p>
+            <ul>
+              <li>Removing overlay divs and modals</li>
+              <li>Unblurring content by modifying CSS properties</li>
+              <li>Disabling JavaScript functions that enforce the paywall</li>
+            </ul>
+            
+            <h3>2. Storage Manipulation</h3>
+            <p>Many paywalls rely on browser storage to track user access:</p>
+            <ul>
+              <li>Clearing localStorage and sessionStorage</li>
+              <li>Manipulating cookies that track article counts</li>
+              <li>Resetting metered access counters</li>
+            </ul>
+            
+            <h3>3. Network Interception</h3>
+            <p>Advanced techniques involve intercepting network requests:</p>
+            <ul>
+              <li>Blocking requests to paywall validation endpoints</li>
+              <li>Modifying request headers to appear as premium users</li>
+              <li>Intercepting and modifying response data</li>
+            </ul>
+            
+            <h2>The Arms Race Continues</h2>
+            <p>As bypass techniques become more sophisticated, paywall providers are responding with increasingly complex countermeasures. This creates an ongoing arms race between security researchers and content providers.</p>
+            
+            <p>Some emerging trends include:</p>
+            <ul>
+              <li><strong>Machine learning</strong> to detect unusual access patterns</li>
+              <li><strong>Hardware fingerprinting</strong> to identify individual users</li>
+              <li><strong>Blockchain-based</strong> verification systems</li>
+              <li><strong>Real-time behavioral analysis</strong> during content consumption</li>
+            </ul>
+            
+            <h2>Ethical Considerations</h2>
+            <p>While understanding paywall vulnerabilities is important for security research, it's crucial to consider the ethical implications:</p>
+            
+            <ul>
+              <li>Content creators rely on paywalls for their livelihood</li>
+              <li>Bypass techniques can undermine legitimate business models</li>
+              <li>Research should focus on improving security, not circumventing it</li>
+              <li>Responsible disclosure is essential when vulnerabilities are found</li>
+            </ul>
+            
+            <h2>Looking Forward</h2>
+            <p>The future of paywall security likely involves a combination of technical and business model innovations. Rather than simply making paywalls harder to bypass, successful content providers may need to:</p>
+            
+            <ul>
+              <li>Offer more value to justify subscription costs</li>
+              <li>Implement flexible pricing models</li>
+              <li>Focus on user experience and convenience</li>
+              <li>Develop alternative monetization strategies</li>
+            </ul>
+            
+            <p>As the digital content landscape continues to evolve, the balance between accessibility and monetization will remain a central challenge for content creators and platforms alike.</p>
+            
+            <div class="article-footer">
+              <p><em>This article is part of our ongoing series on web security and content monetization. Subscribe to access our full library of premium content.</em></p>
+            </div>
+          </div>
+        </article>
       </div>
     </div>
 
@@ -173,6 +269,9 @@ export function createPaywallControls(framework, container) {
       </div>
     </div>
   `;
+
+  // Add styles for the content simulation
+  addContentSimulationStyles();
 
   // Setup event listeners
   setupPaywallEvents(framework, container);
@@ -435,4 +534,191 @@ function showAlert(message, type = 'info') {
   setTimeout(() => {
     alert.remove();
   }, 5000);
+}
+
+/**
+ * Add styles for the content simulation
+ */
+function addContentSimulationStyles() {
+  const style = document.createElement('style');
+  style.textContent = `
+    .content-simulation {
+      background: white;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      padding: 2rem;
+      margin: 1rem 0;
+      max-height: 600px;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .simulated-article {
+      font-family: 'Georgia', serif;
+      line-height: 1.6;
+      color: #333;
+    }
+
+    .article-header {
+      margin-bottom: 2rem;
+      border-bottom: 2px solid #fbbf24;
+      padding-bottom: 1rem;
+    }
+
+    .article-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #1e3a8a;
+      margin-bottom: 1rem;
+      line-height: 1.2;
+    }
+
+    .article-meta {
+      display: flex;
+      gap: 1rem;
+      color: #6c757d;
+      font-size: 0.9rem;
+    }
+
+    .article-meta span {
+      display: flex;
+      align-items: center;
+    }
+
+    .article-meta span:not(:last-child)::after {
+      content: '•';
+      margin-left: 1rem;
+      color: #dee2e6;
+    }
+
+    .article-content {
+      font-size: 1.1rem;
+    }
+
+    .lead {
+      font-size: 1.3rem;
+      font-weight: 500;
+      color: #495057;
+      margin-bottom: 2rem;
+      font-style: italic;
+    }
+
+    .article-content h2 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: #1e3a8a;
+      margin: 2rem 0 1rem 0;
+      border-left: 4px solid #fbbf24;
+      padding-left: 1rem;
+    }
+
+    .article-content h3 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: #495057;
+      margin: 1.5rem 0 0.75rem 0;
+    }
+
+    .article-content p {
+      margin-bottom: 1rem;
+    }
+
+    .article-content ul {
+      margin: 1rem 0;
+      padding-left: 2rem;
+    }
+
+    .article-content li {
+      margin-bottom: 0.5rem;
+    }
+
+    .article-footer {
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid #e9ecef;
+      background: #f8f9fa;
+      padding: 1.5rem;
+      border-radius: 6px;
+    }
+
+    .article-footer p {
+      margin: 0;
+      color: #6c757d;
+      font-style: italic;
+    }
+
+    /* Paywall overlay styles */
+    .paywall-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(5px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+    }
+
+    .paywall-modal {
+      background: white;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      max-width: 400px;
+      text-align: center;
+    }
+
+    .paywall-modal h3 {
+      color: #1e3a8a;
+      margin-bottom: 1rem;
+    }
+
+    .paywall-modal p {
+      color: #6c757d;
+      margin-bottom: 1.5rem;
+    }
+
+    .paywall-modal button {
+      background: #fbbf24;
+      color: #1e3a8a;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      margin: 0 0.5rem;
+      transition: background-color 0.3s ease;
+    }
+
+    .paywall-modal button:hover {
+      background: #f59e0b;
+    }
+
+    .paywall-modal button.secondary {
+      background: #6c757d;
+      color: white;
+    }
+
+    .paywall-modal button.secondary:hover {
+      background: #5a6268;
+    }
+
+    /* Meter indicator */
+    .meter-indicator {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      z-index: 1001;
+    }
+  `;
+  document.head.appendChild(style);
 } 
